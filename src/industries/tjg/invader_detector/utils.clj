@@ -1,5 +1,10 @@
 (ns industries.tjg.invader-detector.utils)
 
+(defn round [n]
+  (if (integer? n)
+    n
+    (Math/round (float n))))
+
 (defn size [a]
   [(-> a first count)
    (-> a count)])

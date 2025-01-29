@@ -1,5 +1,7 @@
 {:paths ["src" "resources"]
+
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}}
+
  :aliases
  {:run-m {:main-opts ["-m" "industries.tjg.invader-detector"]}
   :run-x {:ns-default industries.tjg.invader-detector
