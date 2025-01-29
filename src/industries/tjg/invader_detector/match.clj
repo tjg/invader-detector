@@ -1,4 +1,4 @@
-(ns industries.tjg.match
+(ns industries.tjg.invader-detector.match
   (:require
    [clojure.string :as str]))
 
