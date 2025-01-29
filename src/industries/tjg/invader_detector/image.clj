@@ -16,41 +16,40 @@
         img         (BufferedImage. img-width img-height BufferedImage/TYPE_INT_RGB)
         g           (.createGraphics img)]
 
-    ;; Set background color
     (.setColor g Color/WHITE)
     (.fillRect g 0 0 img-width img-height)
 
-    ;; Set font and color
     (.setFont g (Font. "Monospaced" Font/PLAIN 12))
     (.setColor g Color/BLACK)
 
-    ;; Draw each character
     (doseq [[y line] (map-indexed vector ascii-lines)
             [x char] (map-indexed vector line)]
       (.drawString g (str char) (* x char-width) (* (inc y) char-height)))
 
-    ;; Dispose of graphics context and save the image
     (.dispose g)
     (ImageIO/write img "png" (File. output-path))))
 
-(defn draw-grid [radar-image {:keys [cell-width cell-height] :or {} :as _cell-size} output-file]
-  (let [rows (count radar-image)
-        cols (count (first radar-image))
-        img  (BufferedImage. (* cols cell-width) (* rows cell-height) BufferedImage/TYPE_INT_RGB)
-        g    (.createGraphics img)]
+(defn draw-grid
+  ([radar-image output-file]
+   (draw-grid radar-image {} output-file))
+  ([radar-image
+    {:keys [cell-width cell-height]
+     :or {cell-width 10 cell-height 20}}
+    output-file]
+   (let [rows (count radar-image)
+         cols (count (first radar-image))
+         img  (BufferedImage. (* cols cell-width) (* rows cell-height) BufferedImage/TYPE_INT_RGB)
+         g    (.createGraphics img)]
 
-    ;; Set background to black
-    (.setColor g Color/BLACK)
-    (.fillRect g 0 0 (.getWidth img) (.getHeight img))
+     (.setColor g Color/BLACK)
+     (.fillRect g 0 0 (.getWidth img) (.getHeight img))
 
-    ;; Draw white rectangles for 1s
-    (doseq [row (range rows)
-            col (range cols)]
-      (when-not (zero? (get-in radar-image [row col]))
-        (.setColor g Color/WHITE)
-        (.fillRect g (* col cell-width) (* row cell-height) cell-width cell-height)))
+     (doseq [row (range rows)
+             col (range cols)]
+       (when-not (zero? (get-in radar-image [row col]))
+         (.setColor g Color/WHITE)
+         (.fillRect g (* col cell-width) (* row cell-height) cell-width cell-height)))
 
-    ;; Save image
-    (ImageIO/write img "png" (File. output-file))
+     (ImageIO/write img "png" (File. output-file))
 
-    (.dispose g)))
+     (.dispose g))))

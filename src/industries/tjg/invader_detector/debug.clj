@@ -12,15 +12,20 @@
       (format/format-image)
       (image/draw-text "resources/spec-invader-1.png"))
 
+(-> "resources/spec-invader-2.txt"
+      slurp
+      (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})
+      (image/draw-grid "resources/spec-invader-2.png"))
+
   (-> "resources/spec-invader-1.txt"
       slurp
       (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})
-      (image/draw-grid {:cell-width 10 :cell-height 20} "resources/spec-invader-1-1.png"))
+      (image/draw-grid "resources/spec-invader-1-1.png"))
 
   (-> "resources/spec-radar-sample.txt"
       slurp
       (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})
-      (image/draw-grid {:cell-width 10 :cell-height 20} "resources/spec-radar-sample.png"))
+      (image/draw-grid "resources/spec-radar-sample.png"))
 
   )
 
@@ -50,7 +55,6 @@
                   (filter (fn [{:keys [::averaging-score]}]
                             (> averaging-score 0.7)))
                   (sort-by ::averaging-score)
-                  reverse
-                  #_clojure.pprint/pprint)))
+                  reverse)))
 
   )
