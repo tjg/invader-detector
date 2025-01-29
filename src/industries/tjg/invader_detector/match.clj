@@ -79,7 +79,7 @@
   (let [{:keys [a-start a-size b-start overlap-size]}
         (utils/overlapping-bounding-boxes a b b-offset)
 
-        matches-arrays
+        match-image
         (->> (range 0 (:y overlap-size))
              (mapv (fn [y]
                      (let [a-array-at-y (get a (+ y (:y a-start)))
@@ -90,17 +90,14 @@
                                           b-x (get b-array-at-y (+ x (:x b-start)))]
                                       (if (= a-x b-x) 1 0)))))))))
 
-        matches (for [x (range 0 (:x overlap-size))
-                      y (range 0 (:y overlap-size))]
-                  (= (get-in matches-arrays [y x]) 1))
-
-        match-count (->> matches
-                         (filter identity)
+        match-count (->> match-image
+                         flatten
+                         (filter #(= % 1))
                          count)]
     {:effective-sizes [(:x overlap-size) (:y overlap-size)]
      :a-absolute-size (* (:x a-size) (:y a-size))
      :match-count match-count
-     :matches-arrays matches-arrays}))
+     :match-image match-image}))
 
 ^:rct/test
 (comment
@@ -120,23 +117,23 @@
   ;; => {:effective-sizes [3 3]
   ;;     :a-absolute-size 9
   ;;     :match-count 3
-  ;;     :matches-arrays [[0 0 1]
-  ;;                      [0 1 0]
-  ;;                      [1 0 0]]}
+  ;;     :match-image [[0 0 1]
+  ;;                   [0 1 0]
+  ;;                   [1 0 0]]}
 
   (similarity-score-at-offset test-a test-b
                               {:b-offset [-1 -1]})
   ;; => {:effective-sizes [2 2]
   ;;     :a-absolute-size 9
   ;;     :match-count 4
-  ;;     :matches-arrays [[1 1]
-  ;;                      [1 1]]}
+  ;;     :match-image [[1 1]
+  ;;                   [1 1]]}
 
   (similarity-score-at-offset test-a test-b
                               {:b-offset [-4 -4]})
   ;; => {:effective-sizes [-1 -1]
   ;;     :a-absolute-size 9
   ;;     :match-count 0
-  ;;     :matches-arrays []}
+  ;;     :match-image []}
 
   )
