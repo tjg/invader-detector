@@ -70,7 +70,7 @@
   )
 
 
-(defn similarity-score-at-offset [a b {:keys [b-offset] :as _opts}]
+(defn similarity-at-offset [a b {:keys [b-offset] :as _opts}]
   (when (not= [(-> a first count)
                (-> a count)]
               [(-> b first count)
@@ -112,8 +112,8 @@
      [0 0 0 0]
      [0 0 0 0]])
 
-  (similarity-score-at-offset test-a test-b
-                              {:b-offset [0 0]})
+  (similarity-at-offset test-a test-b
+                        {:b-offset [0 0]})
   ;; => {:effective-sizes [3 3]
   ;;     :a-absolute-size 9
   ;;     :match-count 3
@@ -121,19 +121,58 @@
   ;;                   [0 1 0]
   ;;                   [1 0 0]]}
 
-  (similarity-score-at-offset test-a test-b
-                              {:b-offset [-1 -1]})
+  (similarity-at-offset test-a test-b
+                        {:b-offset [-1 -1]})
   ;; => {:effective-sizes [2 2]
   ;;     :a-absolute-size 9
   ;;     :match-count 4
   ;;     :match-image [[1 1]
   ;;                   [1 1]]}
 
-  (similarity-score-at-offset test-a test-b
-                              {:b-offset [-4 -4]})
+  (similarity-at-offset test-a test-b
+                        {:b-offset [-4 -4]})
   ;; => {:effective-sizes [-1 -1]
   ;;     :a-absolute-size 9
   ;;     :match-count 0
   ;;     :match-image []}
+
+  )
+
+(defn averaging-score [{:keys [effective-sizes a-absolute-size match-count]
+                        :as _similarity}]
+  (let [[xe ye] effective-sizes
+        matched-size (* xe ye)
+        unmatched-size (- a-absolute-size matched-size)]
+    (/ (+ match-count (* unmatched-size 0.5))
+       a-absolute-size)))
+
+(defn matches [a b]
+  (let [[ax ay] (utils/size a)
+        [bx by] (utils/size b)
+        [x0 y0] [(- 1 ax) (- 1 ay)]]
+    (for [y (range y0 by)
+          x (range x0 bx)]
+      (let [similarity (similarity-at-offset a b {:b-offset [x y]})
+            similarity (assoc similarity
+                              ::averaging-score (averaging-score similarity)
+                              ::radar-offset [x y])]
+        similarity))))
+
+(comment
+
+  (let [invader (-> "resources/spec-invader-1.txt"
+                    slurp
+                    str/split-lines
+                    (parse-image {:chars-true [\o \O] :chars-false [\-]}))
+        radar (-> "resources/spec-radar-sample.txt"
+                  slurp
+                  str/split-lines
+                  (parse-image {:chars-true [\o \O] :chars-false [\-]}))]
+    (->> (matches invader radar)
+         (filter (fn [{:keys [::averaging-score]}]
+                   (> averaging-score 0.7)))
+         (sort-by ::averaging-score)
+         reverse
+         clojure.pprint/pprint))
 
   )

@@ -1,13 +1,15 @@
 (ns industries.tjg.invader-detector.utils)
 
+(defn size [a]
+  [(-> a first count)
+   (-> a count)])
+
 (defn overlapping-bounding-boxes [a b [x y :as _b-offset]]
   (let [[b-offset-x b-offset-y] [x y]
 
         ;; Actually measured from the datastructures, not calculated.
-        [b-size-x b-size-y][(-> b first count)
-                            (-> b count)]
-        [a-size-x a-size-y] [(-> a first count)
-                             (-> a count)]
+        [b-size-x b-size-y] (size b)
+        [a-size-x a-size-y] (size a)
 
         ;; Zero; or if the offset's negative, shift.
         [a-start-x a-start-y] [(max 0 (- b-offset-x))
