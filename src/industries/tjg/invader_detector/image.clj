@@ -87,7 +87,7 @@
 
 (defn draw-bounding-boxes
   [img bounding-boxes
-   {:keys [cell-width cell-height background-color line-color font-name font-size]
+   {:keys [cell-width cell-height font-name font-size]
     :or {cell-width 10 cell-height 20 font-name "Monospaced" font-size 12}}]
   (let [gfx (.createGraphics img)]
     (doseq [{:keys [x y width height color text-frame-color alpha score]} bounding-boxes]
