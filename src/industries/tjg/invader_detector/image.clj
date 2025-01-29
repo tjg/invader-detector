@@ -87,8 +87,8 @@
 
 (defn draw-bounding-boxes
   [img bounding-boxes
-   {:keys [cell-width cell-height background-color line-color]
-    :or {cell-width 10 cell-height 20}}]
+   {:keys [cell-width cell-height background-color line-color font-name font-size]
+    :or {cell-width 10 cell-height 20 font-name "Monospaced" font-size 12}}]
   (let [gfx (.createGraphics img)]
     (doseq [{:keys [x y width height color text-frame-color alpha score]} bounding-boxes]
       (let [{:keys [r g b]} color
@@ -96,7 +96,7 @@
                                 (* y cell-height)
                                 (* width cell-width)
                                 (* height cell-height)]
-            font (Font. "Monospaced" Font/PLAIN 12)
+            font (Font. font-name Font/PLAIN font-size)
             score-text (str score "%")
             text-padding 2]
         (.setRenderingHint gfx RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON)
@@ -106,10 +106,8 @@
         (.fillRect gfx x y width height)
 
         (.setComposite gfx (AlphaComposite/getInstance AlphaComposite/SRC_OVER 1))
-        #_(.setColor gfx Color/gray)
         (.setStroke gfx (BasicStroke. 2))
         (.drawRect gfx x y width height)
-        #_(.setStroke gfx (BasicStroke. 0))
 
         (draw-text-rect gfx font score-text text-frame-color text-padding x y)))
 
