@@ -137,7 +137,7 @@
     (.dispose gfx)
     img))
 
-(defn save-image!
+(defn save-to-file!
   "Save png image to file."
   [^BufferedImage img ^String output-file]
   (ImageIO/write img "png" (File. output-file)))

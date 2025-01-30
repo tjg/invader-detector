@@ -23,7 +23,7 @@
         all-matches (->> (concat matches-1 matches-2)
                          (sort-by :score))]
     (image/draw-scoreboxes grid all-matches {})
-    (image/save-image! grid "resources/blah.png")))
+    (image/save-to-file! grid "resources/blah.png")))
 
 (comment
   (make-invader-location-image!)
