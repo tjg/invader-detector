@@ -5,9 +5,13 @@
 (def ^:private default-char-true \█)
 (def ^:private default-char-false \space)
 
-(defn format-image
+(defn format-radar-sample
+  "Format radar sample as unicode text.
+
+  True & false pixels are emitted as `char-true` & `char-false`,
+  respectively."
   ([image]
-   (format-image image {}))
+   (format-radar-sample image {}))
   ([image {:keys [char-true char-false]
            :or {char-true default-char-true
                 char-false default-char-false}
@@ -22,7 +26,7 @@
 
 ^:rct/test
 (comment
-  (format-image [[0 1 0]
+  (format-radar-sample [[0 1 0]
                  [1 0 0]])
   ;; => " █ \n█  "
 

@@ -12,7 +12,9 @@
                                                   java.math.RoundingMode/HALF_UP)
     :else (Math/round (double n))))
 
-(defn size [a]
+(defn size
+  "Calculates size of 2D vector as [size-x, size-y]."
+  [a]
   [(-> a first count)
    (-> a count)])
 

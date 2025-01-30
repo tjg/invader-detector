@@ -2,8 +2,16 @@
   (:require
    [clojure.string :as str]))
 
-(defn parse-radar-data [image {:keys [chars-true chars-false] :as _opts}]
-  (->> image
+(defn parse-radar-sample
+  "Parse unicode radar data into a 2D vector denoting true/false pixels.
+
+  Each line of radar data is separated by newlines.
+
+  `chars-true` & `chars-false` contain characters denoting true or
+  false pixels. An exception is thrown if there's an unknown
+  character."
+  [s {:keys [chars-true chars-false] :as _opts}]
+  (->> s
        str/split-lines
        (map-indexed (fn [line-idx line]
                       (->> line
@@ -21,15 +29,23 @@
                            vec)))
        vec))
 
-(defn parse-radar-data-from-file [file]
+(defn parse-radar-sample-from-file
+  "Parse unicode radar data into a 2D vector denoting true/false pixels.
+
+  Each line of radar data is separated by newlines.
+
+  `chars-true` & `chars-false` contain characters denoting true or
+  false pixels. An exception is thrown if there's an unknown
+  character."
+  [file]
   (-> file
       slurp
-      (parse-radar-data {:chars-true [\o \O] :chars-false [\-]})))
+      (parse-radar-sample {:chars-true [\o \O] :chars-false [\-]})))
 
 ^:rct/test
 (comment
   (-> "--o-O\noOo-"
-      (parse-radar-data {:chars-true [\o \O] :chars-false [\-]}))
+      (parse-radar-sample {:chars-true [\o \O] :chars-false [\-]}))
   ;; => [[0 0 1 0 1]
   ;;     [1 1 1 0  ]]
 

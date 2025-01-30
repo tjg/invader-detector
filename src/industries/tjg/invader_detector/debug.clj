@@ -5,7 +5,7 @@
    [industries.tjg.invader-detector.parse :as parse]
    [industries.tjg.invader-detector.utils :as utils]))
 
-(defn bounding-box [{:keys [match color score]}]
+(defn- bounding-box [{:keys [match color score]}]
   (let [{:keys [effective-sizes ::match/radar-offset]} match
         [x y] radar-offset
         [width height] effective-sizes
@@ -16,16 +16,16 @@
      :alpha (* 0.5 score)
      :label score-text}))
 
-(defn matches [invader radar]
+(defn- matches [invader radar]
   (->> (match/matches invader radar)
        (filter (fn [{:keys [::match/averaging-score]}]
                  (> averaging-score 0.7)))
        (sort-by ::match/averaging-score)))
 
-(defn make-invader-location-image! []
-  (let [invader-1 (parse/parse-radar-data-from-file "resources/spec-invader-1.txt")
-        invader-2 (parse/parse-radar-data-from-file "resources/spec-invader-2.txt")
-        radar     (parse/parse-radar-data-from-file "resources/spec-radar-sample.txt")
+(defn- make-invader-location-image! []
+  (let [invader-1 (parse/parse-radar-sample-from-file "resources/spec-invader-1.txt")
+        invader-2 (parse/parse-radar-sample-from-file "resources/spec-invader-2.txt")
+        radar     (parse/parse-radar-sample-from-file "resources/spec-radar-sample.txt")
         grid      (image/draw-grid radar)
 
         matches-1 (->> (matches invader-1 radar)

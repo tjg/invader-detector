@@ -1,6 +1,5 @@
 (ns industries.tjg.invader-detector.image
   (:require
-   [clojure.string :as str]
    [industries.tjg.invader-detector.utils :as utils])
   (:import
    (java.awt AlphaComposite BasicStroke Color Font RenderingHints)
@@ -16,33 +15,6 @@
     (.drawImage gfx img 0 0 nil)
     (.dispose gfx)
     copy))
-
-(defn draw-ascii-text
-  "Draw monospaced ASCII text. Returns a BufferedImage."
-  [image-string]
-  (let [ascii-lines (str/split-lines image-string)
-        char-width  10
-        char-height 15
-        img-width   (* char-width (apply max (map count ascii-lines)))
-        img-height  (* char-height (count ascii-lines))
-        img         (BufferedImage. img-width img-height BufferedImage/TYPE_INT_RGB)
-        gfx         (.createGraphics img)]
-
-    (.setColor gfx Color/WHITE)
-    (.fillRect gfx 0 0 img-width img-height)
-
-    (.setFont gfx (Font. "Monospaced" Font/PLAIN 12))
-    (.setColor gfx Color/BLACK)
-
-    (doseq [[y line] (map-indexed vector ascii-lines)
-            [x character] (map-indexed vector line)]
-      (.drawString gfx
-                   (str character)
-                   (int (* x char-width))
-                   (int (* (inc y) char-height))))
-
-    (.dispose gfx)
-    img))
 
 (defn draw-grid
   "Draw pixel grid. Returns a BufferedImage."
@@ -118,6 +90,7 @@
     (.drawString gfx label (int text-x) (int text-y))))
 
 (defn draw-bounding-boxes
+  "Draw bounding box onto BufferedImage. Returns the BufferedImage."
   [^BufferedImage img bounding-boxes
    {:keys [cell-width cell-height font-name font-size]
     :or {cell-width 10 cell-height 20 font-name "Monospaced" font-size 12}}]
@@ -146,5 +119,7 @@
     (.dispose gfx)
     img))
 
-(defn save-image! [^BufferedImage img ^String output-file]
+(defn save-image!
+  "Save png image to file."
+  [^BufferedImage img ^String output-file]
   (ImageIO/write img "png" (File. output-file)))

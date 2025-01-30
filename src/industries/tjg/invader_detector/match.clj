@@ -78,18 +78,22 @@
     (/ (+ match-count (* unmatched-size 0.5))
        a-absolute-size)))
 
-(defn matches [a b]
-  (let [[ax ay] (utils/size a)
-        [bx by] (utils/size b)
-        ;; Position `a` initially so that its lowest-right corner just
-        ;; barely overlaps with `b`'s upper-left corner.
+(defn matches
+  "Match `invader` to `radar-sample`.
+
+  Returns a sequence of similarity scores."
+  [invader radar-sample]
+  (let [[ax ay] (utils/size invader)
+        [bx by] (utils/size radar-sample)
+        ;; Position `invader` initially so that its lowest-right corner just
+        ;; barely overlaps with `radar-sample`'s upper-left corner.
         [x0 y0] [(- 1 ax) (- 1 ay)]]
-    ;; Place `a` at all positions in and around `b`, as long as
+    ;; Place `invader` at all positions in and around `radar-sample`, as long as
     ;; there's the slightest bit of overlap. Calculate the similarity
     ;; score at each position.
     (for [y (range y0 by)
           x (range x0 bx)]
-      (let [similarity (similarity-at-offset a b {:offset [x y]})
+      (let [similarity (similarity-at-offset invader radar-sample {:offset [x y]})
             similarity (assoc similarity
                               ::averaging-score (averaging-score similarity)
                               ::radar-offset [x y])]
