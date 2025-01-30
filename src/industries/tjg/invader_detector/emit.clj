@@ -3,6 +3,18 @@
    [clojure.string :as str]
    [industries.tjg.invader-detector.utils :as utils]))
 
+(def default-draw-opts
+  "Simple ASCII text frame."
+  {:char-true            \o
+   :char-false           \-
+   :corner-x0-char       \┌
+   :corner-xN-char       \┐
+   :corner-y0-char       \└
+   :corner-yN-char       \┘
+   :vertical-side-char   \│
+   :horizontal-side-char \─
+   :inner-bbox-char      \space})
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Utils
 
@@ -17,48 +29,6 @@
 (defn- label-pos? [label [x y] [x0 y0] [_ _]]
   (and (= 1 (- y y0))
        (<= (inc x0) x (+ x0 (count label)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Public API
-
-(def default-draw-opts
-  "Simple ASCII text frame."
-  {:char-true            \o
-   :char-false           \-
-   :corner-x0-char       \┌
-   :corner-xN-char       \┐
-   :corner-y0-char       \└
-   :corner-yN-char       \┘
-   :vertical-side-char   \│
-   :horizontal-side-char \─
-   :inner-bbox-char      \space})
-
-(defn draw-pixel-matrix
-  "Format radar sample as unicode text.
-
-  True & false pixels are emitted as `:char-true` & `:char-false` from
-  `opts`, respectively. Defaults are specified in `default-draw-opts`."
-  ([pixel-matrix]
-   (draw-pixel-matrix pixel-matrix {}))
-  ([pixel-matrix opts]
-   (let [{:keys [char-true char-false]} (merge default-draw-opts opts)]
-     (->> pixel-matrix
-          (map (fn [row]
-                 (->> row
-                      (map (fn [pixel]
-                             (if (zero? pixel) char-false char-true)))
-                      (apply str))))
-          (str/join \newline)))))
-
-^:rct/test
-(comment
-  (draw-pixel-matrix [[0 1 0]
-                      [1 0 0]]
-                     {:char-true \█
-                      :char-false \space})
-  ;; => " █ \n█  "
-
-  )
 
 (defn- draw-scorebox [pixel-matrix {:keys [bbox score]} opts]
   (let [{:keys [corner-x0-char
@@ -138,7 +108,35 @@ X└────┘X
 XXXXXXXX
 XXXXXXXX
 XXXXXXXX"
+)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public API
+
+(defn draw-pixel-matrix
+  "Format radar sample as unicode text.
+
+  True & false pixels are emitted as `:char-true` & `:char-false` from
+  `opts`, respectively. Defaults are specified in `default-draw-opts`."
+  ([pixel-matrix]
+   (draw-pixel-matrix pixel-matrix {}))
+  ([pixel-matrix opts]
+   (let [{:keys [char-true char-false]} (merge default-draw-opts opts)]
+     (->> pixel-matrix
+          (map (fn [row]
+                 (->> row
+                      (map (fn [pixel]
+                             (if (zero? pixel) char-false char-true)))
+                      (apply str))))
+          (str/join \newline)))))
+
+^:rct/test
+(comment
+  (draw-pixel-matrix [[0 1 0]
+                      [1 0 0]]
+                     {:char-true \█
+                      :char-false \space})
+  ;; => " █ \n█  "
   )
 
 (defn draw-scoreboxes

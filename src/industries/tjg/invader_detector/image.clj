@@ -86,49 +86,42 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public API
 
-(defn copy-image
-  "Copy a BufferedImage."
-  [^BufferedImage img]
-  (let [copy (BufferedImage. (.getWidth img) (.getHeight img) (.getType img))
-        gfx (.createGraphics copy)]
-    (.drawImage gfx img 0 0 nil)
-    (.dispose gfx)
-    copy))
-
 (def default-draw-opts
   "This cell width & height is designed to resemble ASCII terminals."
-  {:cell-width 10 :cell-height 20 :font-name "Monospaced" :font-size 12})
+  {:cell-width 10
+   :cell-height 20
+   :font-name "Monospaced"
+   :font-size 12})
 
 (defn draw-pixel-matrix
-  "Draw pixel grid. Returns a BufferedImage."
-  ([pixel-matrix]
-   (draw-pixel-matrix pixel-matrix {}))
-  ([pixel-matrix opts]
-   (let [{:keys [cell-width cell-height]} (merge default-draw-opts opts)
-         [cols rows] (utils/size pixel-matrix)
-         img  (BufferedImage. (* cols cell-width)
-                              (* rows cell-height)
-                              BufferedImage/TYPE_INT_RGB)
-         gfx  (.createGraphics img)]
+  "Draw pixel grid. Returns a BufferedImage.
 
-     (.setColor gfx Color/BLACK)
-     (.fillRect gfx 0 0 (.getWidth img) (.getHeight img))
+  `opts` enables additional config. See `default-draw-opts`."
+  [pixel-matrix opts]
+  (let [{:keys [cell-width cell-height]} (merge default-draw-opts opts)
+        [cols rows] (utils/size pixel-matrix)
+        img  (BufferedImage. (* cols cell-width)
+                             (* rows cell-height)
+                             BufferedImage/TYPE_INT_RGB)
+        gfx  (.createGraphics img)]
 
-     (doseq [row (range rows)
-             col (range cols)]
-       (when-not (zero? (get-in pixel-matrix [row col]))
-         (.setColor gfx Color/WHITE)
-         (.fillRect gfx (* col cell-width) (* row cell-height) cell-width cell-height)))
+    (.setColor gfx Color/BLACK)
+    (.fillRect gfx 0 0 (.getWidth img) (.getHeight img))
 
-     (.dispose gfx)
-     img)))
+    (doseq [row (range rows)
+            col (range cols)]
+      (when-not (zero? (get-in pixel-matrix [row col]))
+        (.setColor gfx Color/WHITE)
+        (.fillRect gfx (* col cell-width) (* row cell-height) cell-width cell-height)))
+
+    (.dispose gfx)
+    img))
 
 (defn draw-scoreboxes
   "Draw scoreboxes onto BufferedImage. Returns the modified BufferedImage.
 
   `opts` enables additional config. See `default-draw-opts`."
   [^BufferedImage img colored-scoreboxes opts]
-
   (let [gfx (.createGraphics img)]
     (doseq [colored-scorebox colored-scoreboxes]
       (draw-scorebox gfx colored-scorebox
