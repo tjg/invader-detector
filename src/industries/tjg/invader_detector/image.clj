@@ -95,14 +95,17 @@
     (.dispose gfx)
     copy))
 
+(def default-draw-opts
+  "This cell width & height is designed to resemble ASCII terminals."
+  {:cell-width 10 :cell-height 20 :font-name "Monospaced" :font-size 12})
+
 (defn draw-grid
   "Draw pixel grid. Returns a BufferedImage."
-  ([radar-image]
-   (draw-grid radar-image {}))
-  ([radar-image
-    {:keys [cell-width cell-height]
-     :or {cell-width 10 cell-height 20}}]
-   (let [[cols rows] (utils/size radar-image)
+  ([pixel-matrix]
+   (draw-grid pixel-matrix {}))
+  ([pixel-matrix opts]
+   (let [{:keys [cell-width cell-height]} (merge default-draw-opts opts)
+         [cols rows] (utils/size pixel-matrix)
          img  (BufferedImage. (* cols cell-width)
                               (* rows cell-height)
                               BufferedImage/TYPE_INT_RGB)
@@ -113,27 +116,23 @@
 
      (doseq [row (range rows)
              col (range cols)]
-       (when-not (zero? (get-in radar-image [row col]))
+       (when-not (zero? (get-in pixel-matrix [row col]))
          (.setColor gfx Color/WHITE)
          (.fillRect gfx (* col cell-width) (* row cell-height) cell-width cell-height)))
 
      (.dispose gfx)
      img)))
 
-(def default-draw-scoreboxes-opts
-  "This cell width & height is designed to resemble ASCII terminals."
-  {:cell-width 10 :cell-height 20 :font-name "Monospaced" :font-size 12})
-
 (defn draw-scoreboxes
   "Draw scoreboxes onto BufferedImage. Returns the modified BufferedImage.
 
-  `opts` allows additional config. See `default-draw-scoreboxes-opts`."
+  `opts` enables additional config. See `default-draw-opts`."
   [^BufferedImage img colored-scoreboxes opts]
 
   (let [gfx (.createGraphics img)]
     (doseq [colored-scorebox colored-scoreboxes]
       (draw-scorebox gfx colored-scorebox
-                     (merge default-draw-scoreboxes-opts opts)))
+                     (merge default-draw-opts opts)))
 
     (.dispose gfx)
     img))
