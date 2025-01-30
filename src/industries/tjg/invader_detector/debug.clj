@@ -22,7 +22,7 @@
 
         all-matches (->> (concat matches-1 matches-2)
                          (sort-by :score))]
-    (image/draw-bounding-boxes grid all-matches {})
+    (image/draw-scoreboxes grid all-matches {})
     (image/save-image! grid "resources/blah.png")))
 
 (comment

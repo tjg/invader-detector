@@ -95,8 +95,8 @@
      (.dispose gfx)
      img)))
 
-(defn draw-bounding-boxes
-  "Draw bounding boxes onto BufferedImage. Returns the modified BufferedImage."
+(defn draw-scoreboxes
+  "Draw scoreboxes onto BufferedImage. Returns the modified BufferedImage."
   [^BufferedImage img colored-scoreboxes
    {:keys [cell-width cell-height font-name font-size]
     ;; Make width/height ratio similar to ASCII terminals.
