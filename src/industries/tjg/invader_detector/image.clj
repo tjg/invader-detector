@@ -7,39 +7,8 @@
    (java.io File)
    (javax.imageio ImageIO)))
 
-(defn copy-image
-  "Copy a BufferedImage."
-  [^BufferedImage img]
-  (let [copy (BufferedImage. (.getWidth img) (.getHeight img) (.getType img))
-        gfx (.createGraphics copy)]
-    (.drawImage gfx img 0 0 nil)
-    (.dispose gfx)
-    copy))
-
-(defn draw-grid
-  "Draw pixel grid. Returns a BufferedImage."
-  ([radar-image]
-   (draw-grid radar-image {}))
-  ([radar-image
-    {:keys [cell-width cell-height]
-     :or {cell-width 10 cell-height 20}}]
-   (let [[cols rows] (utils/size radar-image)
-         img  (BufferedImage. (* cols cell-width)
-                              (* rows cell-height)
-                              BufferedImage/TYPE_INT_RGB)
-         gfx  (.createGraphics img)]
-
-     (.setColor gfx Color/BLACK)
-     (.fillRect gfx 0 0 (.getWidth img) (.getHeight img))
-
-     (doseq [row (range rows)
-             col (range cols)]
-       (when-not (zero? (get-in radar-image [row col]))
-         (.setColor gfx Color/WHITE)
-         (.fillRect gfx (* col cell-width) (* row cell-height) cell-width cell-height)))
-
-     (.dispose gfx)
-     img)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Utils
 
 (defn- make-color
   ([{:keys [r g b]}]
@@ -88,6 +57,43 @@
     (.setFont    gfx font)
     (.setColor   gfx Color/white)
     (.drawString gfx label (int text-x) (int text-y))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public API
+
+(defn copy-image
+  "Copy a BufferedImage."
+  [^BufferedImage img]
+  (let [copy (BufferedImage. (.getWidth img) (.getHeight img) (.getType img))
+        gfx (.createGraphics copy)]
+    (.drawImage gfx img 0 0 nil)
+    (.dispose gfx)
+    copy))
+
+(defn draw-grid
+  "Draw pixel grid. Returns a BufferedImage."
+  ([radar-image]
+   (draw-grid radar-image {}))
+  ([radar-image
+    {:keys [cell-width cell-height]
+     :or {cell-width 10 cell-height 20}}]
+   (let [[cols rows] (utils/size radar-image)
+         img  (BufferedImage. (* cols cell-width)
+                              (* rows cell-height)
+                              BufferedImage/TYPE_INT_RGB)
+         gfx  (.createGraphics img)]
+
+     (.setColor gfx Color/BLACK)
+     (.fillRect gfx 0 0 (.getWidth img) (.getHeight img))
+
+     (doseq [row (range rows)
+             col (range cols)]
+       (when-not (zero? (get-in radar-image [row col]))
+         (.setColor gfx Color/WHITE)
+         (.fillRect gfx (* col cell-width) (* row cell-height) cell-width cell-height)))
+
+     (.dispose gfx)
+     img)))
 
 (defn draw-bounding-boxes
   "Draw bounding box onto BufferedImage. Returns the BufferedImage."

@@ -2,6 +2,9 @@
   (:require
    [industries.tjg.invader-detector.utils :as utils]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Utils
+
 (defn- similarity-at-offset [a b {:keys [offset] :as _opts}]
   (when (not= [(-> a first count)
                (-> a count)]
@@ -77,6 +80,9 @@
         unmatched-size (- a-absolute-size matched-size)]
     (/ (+ match-count (* unmatched-size 0.5))
        a-absolute-size)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public API
 
 (defn matches
   "Match `invader` to `radar-sample`.

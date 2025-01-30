@@ -2,6 +2,9 @@
   (:require
    [clojure.string :as str]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Utils
+
 (defn- pad-vectors [pad-val vecs]
   (let [max-size (->> vecs
                      (map count)
@@ -21,7 +24,6 @@
   ;; => [[1 0] [1 1] [1 0]]
   )
 
-
 (defn- parse-char [ch chars-true chars-false line-idx char-idx]
   (cond (chars-true ch) 1
         (chars-false ch) 0
@@ -30,6 +32,9 @@
                       {:character ch
                        :line-idx line-idx
                        :char-idx char-idx}))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public API
 
 (defn parse-radar-sample
   "Parse unicode radar data into a 2D vector denoting true/false pixels.

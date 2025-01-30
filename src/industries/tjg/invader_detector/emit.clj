@@ -5,6 +5,9 @@
 (def ^:private default-char-true \█)
 (def ^:private default-char-false \space)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public API
+
 (defn emit-radar-sample
   "Format radar sample as unicode text.
 

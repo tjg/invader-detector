@@ -6,12 +6,18 @@
    [malli.core :as m]
    [malli.error :as me]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Utils
+
 (defn- uniform-line-length? [s]
   (let [line-lengths (->> s str/split-lines (map count) set)]
     (= 1 (count line-lengths))))
 
 (defn- invalid-chars [s ok-chars]
   (set/difference (set s) (set ok-chars)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public API
 
 (defn make-radar-sample-schema
   "Malli schema for radar samples."
