@@ -1,17 +1,17 @@
-(ns industries.tjg.invader-detector.format
+(ns industries.tjg.invader-detector.emit
   (:require
    [clojure.string :as str]))
 
 (def ^:private default-char-true \█)
 (def ^:private default-char-false \space)
 
-(defn format-radar-sample
+(defn emit-radar-sample
   "Format radar sample as unicode text.
 
   True & false pixels are emitted as `char-true` & `char-false`,
   respectively."
   ([image]
-   (format-radar-sample image {}))
+   (emit-radar-sample image {}))
   ([image {:keys [char-true char-false]
            :or {char-true default-char-true
                 char-false default-char-false}
@@ -26,8 +26,8 @@
 
 ^:rct/test
 (comment
-  (format-radar-sample [[0 1 0]
-                 [1 0 0]])
+  (emit-radar-sample [[0 1 0]
+                      [1 0 0]])
   ;; => " █ \n█  "
 
   )
