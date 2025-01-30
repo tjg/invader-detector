@@ -58,6 +58,31 @@
     (.setColor   gfx Color/white)
     (.drawString gfx label (int text-x) (int text-y))))
 
+(defn- draw-scorebox [gfx {:keys [bbox score color]}
+                     {:keys [cell-width cell-height font-name font-size]}]
+  (let [{:keys [x y width height]} bbox
+
+        alpha (* score 0.5)
+        label (utils/format-score-as-percent score)
+        [x y width height] [(* x cell-width)
+                            (* y cell-height)
+                            (* width cell-width)
+                            (* height cell-height)]]
+    (.setRenderingHint
+     gfx RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON)
+
+    ;; Fill bounding box.
+    (.setComposite gfx (AlphaComposite/getInstance AlphaComposite/SRC_OVER alpha))
+    (.setColor     gfx (make-color color))
+    (.fillRect     gfx x y width height)
+
+    ;; Bounding box outline.
+    (.setComposite gfx (AlphaComposite/getInstance AlphaComposite/SRC_OVER 1))
+    (.setStroke    gfx (BasicStroke. 2))
+    (.drawRect     gfx x y width height)
+
+    (draw-bounding-box-label gfx label font-name font-size color x y)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public API
 
@@ -95,36 +120,20 @@
      (.dispose gfx)
      img)))
 
+(def default-draw-scoreboxes-opts
+  "This cell width & height is designed to resemble ASCII terminals."
+  {:cell-width 10 :cell-height 20 :font-name "Monospaced" :font-size 12})
+
 (defn draw-scoreboxes
-  "Draw scoreboxes onto BufferedImage. Returns the modified BufferedImage."
-  [^BufferedImage img colored-scoreboxes
-   {:keys [cell-width cell-height font-name font-size]
-    ;; Make width/height ratio similar to ASCII terminals.
-    :or {cell-width 10 cell-height 20 font-name "Monospaced" font-size 12}}]
+  "Draw scoreboxes onto BufferedImage. Returns the modified BufferedImage.
+
+  `opts` allows additional config. See `default-draw-scoreboxes-opts`."
+  [^BufferedImage img colored-scoreboxes opts]
+
   (let [gfx (.createGraphics img)]
-    (doseq [{:keys [bbox score color]} colored-scoreboxes]
-      (let [{:keys [x y width height]} bbox
-
-            alpha (* score 0.5)
-            label (utils/format-score-as-percent score)
-            [x y width height] [(* x cell-width)
-                                (* y cell-height)
-                                (* width cell-width)
-                                (* height cell-height)]]
-        (.setRenderingHint
-         gfx RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON)
-
-        ;; Fill bounding box.
-        (.setComposite gfx (AlphaComposite/getInstance AlphaComposite/SRC_OVER alpha))
-        (.setColor     gfx (make-color color))
-        (.fillRect     gfx x y width height)
-
-        ;; Bounding box outline.
-        (.setComposite gfx (AlphaComposite/getInstance AlphaComposite/SRC_OVER 1))
-        (.setStroke    gfx (BasicStroke. 2))
-        (.drawRect     gfx x y width height)
-
-        (draw-bounding-box-label gfx label font-name font-size color x y)))
+    (doseq [colored-scorebox colored-scoreboxes]
+      (draw-scorebox gfx colored-scorebox
+                     (merge default-draw-scoreboxes-opts opts)))
 
     (.dispose gfx)
     img))
