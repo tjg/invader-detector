@@ -29,7 +29,8 @@
                          flatten
                          (filter #(= % 1))
                          count)]
-    {:effective-sizes [(:x overlap-size) (:y overlap-size)]
+    {:effective-size {:width  (:x overlap-size)
+                      :height (:y overlap-size)}
      :a-absolute-size (* (:x a-size) (:y a-size))
      :match-count match-count
      :match-image match-image}))
@@ -49,7 +50,7 @@
 
   (similarity-at-offset test-a test-b
                         {:offset [0 0]})
-  ;; => {:effective-sizes [3 3]
+  ;; => {:effective-size {:width 3 :height 3}
   ;;     :a-absolute-size 9
   ;;     :match-count 3
   ;;     :match-image [[0 0 1]
@@ -58,7 +59,7 @@
 
   (similarity-at-offset test-a test-b
                         {:offset [-1 -1]})
-  ;; => {:effective-sizes [2 2]
+  ;; => {:effective-size {:width 2 :height 2}
   ;;     :a-absolute-size 9
   ;;     :match-count 4
   ;;     :match-image [[1 1]
@@ -66,17 +67,17 @@
 
   (similarity-at-offset test-a test-b
                         {:offset [-4 -4]})
-  ;; => {:effective-sizes [-1 -1]
+  ;; => {:effective-size {:width -1 :height -1}
   ;;     :a-absolute-size 9
   ;;     :match-count 0
   ;;     :match-image []}
 
   )
 
-(defn- averaging-score [{:keys [effective-sizes a-absolute-size match-count]
+(defn- averaging-score [{:keys [effective-size a-absolute-size match-count]
                         :as _similarity}]
-  (let [[xe ye] effective-sizes
-        matched-size (* xe ye)
+  (let [{:keys [width height]} effective-size
+        matched-size (* width height)
         unmatched-size (- a-absolute-size matched-size)]
     (/ (+ match-count (* unmatched-size 0.5))
        a-absolute-size)))
@@ -99,8 +100,6 @@
     ;; score at each position.
     (for [y (range y0 by)
           x (range x0 bx)]
-      (let [similarity (similarity-at-offset invader radar-sample {:offset [x y]})
-            similarity (assoc similarity
-                              ::averaging-score (averaging-score similarity)
-                              ::radar-offset [x y])]
-        similarity))))
+      (let [similarity (similarity-at-offset invader radar-sample {:offset [x y]})]
+        {:bbox (merge {:x x :y y} (:effective-size similarity))
+         :score (averaging-score similarity)}))))

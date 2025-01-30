@@ -96,14 +96,18 @@
      img)))
 
 (defn draw-bounding-boxes
-  "Draw bounding box onto BufferedImage. Returns the BufferedImage."
-  [^BufferedImage img bounding-boxes
+  "Draw bounding boxes onto BufferedImage. Returns the modified BufferedImage."
+  [^BufferedImage img colored-scoreboxes
    {:keys [cell-width cell-height font-name font-size]
+    ;; Make width/height ratio similar to ASCII terminals.
     :or {cell-width 10 cell-height 20 font-name "Monospaced" font-size 12}}]
   (let [gfx (.createGraphics img)]
-    (doseq [{:keys [x y width height color alpha label]}
-            bounding-boxes]
-      (let [[x y width height] [(* x cell-width)
+    (doseq [{:keys [bbox score color]} colored-scoreboxes]
+      (let [{:keys [x y width height]} bbox
+
+            alpha (* score 0.5)
+            label (utils/format-score-as-percent score)
+            [x y width height] [(* x cell-width)
                                 (* y cell-height)
                                 (* width cell-width)
                                 (* height cell-height)]]
