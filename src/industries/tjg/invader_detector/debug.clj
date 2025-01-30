@@ -7,36 +7,28 @@
 
 (comment
   (-> "resources/spec-invader-1.txt"
-      slurp
-      (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})
-      (format/format-image)
+      parse/parse-radar-data-from-file
+      format/format-image
       (image/draw-ascii-text "resources/spec-invader-1.png"))
 
-(-> "resources/spec-invader-2.txt"
-      slurp
-      (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})
+  (-> "resources/spec-invader-2.txt"
+      parse/parse-radar-data-from-file
       (image/draw-grid "resources/spec-invader-2.png"))
 
   (-> "resources/spec-invader-1.txt"
-      slurp
-      (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})
+      parse/parse-radar-data-from-file
       (image/draw-grid "resources/spec-invader-1-1.png"))
 
   (-> "resources/spec-radar-sample.txt"
-      slurp
-      (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})
+      parse/parse-radar-data-from-file
       (image/draw-grid "resources/spec-radar-sample.png"))
 
   )
 
 (comment
 
-  (let [invader (-> "resources/spec-invader-1.txt"
-                    slurp
-                    (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]}))
-        radar (-> "resources/spec-radar-sample.txt"
-                  slurp
-                  (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]}))]
+  (let [invader
+        radar (parse/parse-radar-data-from-file "resources/spec-radar-sample.txt")]
     (->> (match/matches invader radar)
          (filter (fn [{:keys [::match/averaging-score]}]
                    (> averaging-score 0.7)))
@@ -45,12 +37,8 @@
          clojure.pprint/pprint))
 
   (require '[criterium.core :as c])
-  (c/bench (let [invader (-> "resources/spec-invader-1.txt"
-                             slurp
-                             (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]}))
-                 radar (-> "resources/spec-radar-sample.txt"
-                           slurp
-                           (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]}))]
+  (c/bench (let [invader (parse/parse-radar-data-from-file "resources/spec-invader-1.txt")
+                 radar (parse/parse-radar-data-from-file "resources/spec-radar-sample.txt")]
              (->> (match/matches invader radar)
                   (filter (fn [{:keys [::match/averaging-score]}]
                             (> averaging-score 0.7)))
@@ -59,22 +47,18 @@
 
   )
 
-(defn parse-file [file]
-  (-> file
-      slurp
-      (parse/parse-radar-data {:chars-true [\o \O] :chars-false [\-]})))
-
-(defn bounding-box [{:keys [match color text-frame-color score]}]
+(defn bounding-box [{:keys [match color score]}]
   (let [{:keys [effective-sizes
                 ::match/radar-offset
                 ::match/averaging-score]} match]
     (let [[x y] radar-offset
-          [width height] effective-sizes]
+          [width height] effective-sizes
+          score-percent (Math/round (* 100 score))
+          score-text (str score-percent "%")]
       {:x x :y y :width width :height height
        :color color
-       :text-frame-color text-frame-color
        :alpha (* 0.5 score)
-       :score (Math/round (* 100 score))})))
+       :label score-text})))
 
 (defn matches [invader radar]
   (->> (match/matches invader radar)
@@ -83,25 +67,21 @@
        (sort-by ::match/averaging-score)))
 
 (defn invader-location-image []
-  (let [invader-1 (parse-file "resources/spec-invader-1.txt")
-        invader-2 (parse-file "resources/spec-invader-2.txt")
-        radar (parse-file "resources/spec-radar-sample.txt")
-        grid (image/draw-grid radar)
+  (let [invader-1 (parse/parse-radar-data-from-file "resources/spec-invader-1.txt")
+        invader-2 (parse/parse-radar-data-from-file "resources/spec-invader-2.txt")
+        radar     (parse/parse-radar-data-from-file "resources/spec-radar-sample.txt")
+        grid      (image/draw-grid radar)
 
         matches-1 (->> (matches invader-1 radar)
                        (map (fn [match]
-                              (let [color {:r 67 :g 0 :b 255}
-                                    text-frame-color (image/calculate-text-frame-color color)]
+                              (let [color {:r 67 :g 0 :b 255}]
                                 {:match match
                                  :color color
-                                 :text-frame-color text-frame-color
                                  :score (::match/averaging-score match)}))))
         matches-2 (->> (matches invader-2 radar)
                        (map (fn [match]
-                              (let [color {:r 68 :g 242 :b 13}
-                                    text-frame-color (image/calculate-text-frame-color color)]
+                              (let [color {:r 68 :g 242 :b 13}]
                                 {:match match
-                                 :text-frame-color text-frame-color
                                  :color color
                                  :score (::match/averaging-score match)}))))
 

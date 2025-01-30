@@ -21,6 +21,11 @@
                            vec)))
        vec))
 
+(defn parse-radar-data-from-file [file]
+  (-> file
+      slurp
+      (parse-radar-data {:chars-true [\o \O] :chars-false [\-]})))
+
 ^:rct/test
 (comment
   (-> "--o-O\noOo-"

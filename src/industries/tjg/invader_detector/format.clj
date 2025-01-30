@@ -2,8 +2,8 @@
   (:require
    [clojure.string :as str]))
 
-(def default-char-true \█)
-(def default-char-false \space)
+(def ^:private default-char-true \█)
+(def ^:private default-char-false \space)
 
 (defn format-image
   ([image]

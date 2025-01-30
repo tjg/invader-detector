@@ -3,7 +3,7 @@
    [clojure.string :as str]
    [industries.tjg.invader-detector.utils :as utils]))
 
-(defn similarity-score [a b]
+(defn- similarity-score [a b]
   (when (not= [(-> a first count)
                (-> a count)]
               [(-> b first count)
@@ -34,14 +34,14 @@
   )
 
 
-(defn similarity-at-offset [a b {:keys [b-offset] :as _opts}]
+(defn- similarity-at-offset [a b {:keys [b-offset] :as _opts}]
   (when (not= [(-> a first count)
                (-> a count)]
               [(-> b first count)
                (-> b count)])
     (ex-info "Array sizes don't match." {:a a :b b}))
   (let [{:keys [a-start a-size b-start overlap-size]}
-        (utils/overlapping-bounding-boxes a b b-offset)
+        (utils/bounding-box-intersection a b b-offset)
 
         match-image
         (->> (range 0 (:y overlap-size))
@@ -102,7 +102,7 @@
 
   )
 
-(defn averaging-score [{:keys [effective-sizes a-absolute-size match-count]
+(defn- averaging-score [{:keys [effective-sizes a-absolute-size match-count]
                         :as _similarity}]
   (let [[xe ye] effective-sizes
         matched-size (* xe ye)

@@ -9,21 +9,26 @@
   [(-> a first count)
    (-> a count)])
 
-(defn overlapping-bounding-boxes [a b [x y :as _b-offset]]
-  (let [[b-offset-x b-offset-y] [x y]
+(defn bounding-box-intersection
+  "Calculate overlap of two bounding boxes.
+
+  `a`'s position relative to `b` is translated by `_offset`. This may
+  put `a` outside `b`'s bounds."
+  [a b [x y :as _offset]]
+  (let [[offset-x offset-y] [x y]
 
         ;; Actually measured from the datastructures, not calculated.
         [b-size-x b-size-y] (size b)
         [a-size-x a-size-y] (size a)
 
         ;; Zero; or if the offset's negative, shift.
-        [a-start-x a-start-y] [(max 0 (- b-offset-x))
-                               (max 0 (- b-offset-y))]
+        [a-start-x a-start-y] [(max 0 (- offset-x))
+                               (max 0 (- offset-y))]
         ;; Size; or distance from b's start to its end.
         [a-end-x a-end-y] [(min a-size-x
-                                (- b-size-x b-offset-x))
+                                (- b-size-x offset-x))
                            (min a-size-y
-                                (- b-size-y b-offset-y))]
+                                (- b-size-y offset-y))]
 
         ;; We've calculated a's bounds, using a's & b's dimensions. So
         ;; use it to calculate the effective size of both a & b.
@@ -31,8 +36,8 @@
                                              (- a-end-y a-start-y)]
 
         ;; b's offset, or 0 if it's negative.
-        [b-start-x b-start-y] [(max 0 b-offset-x)
-                               (max 0 b-offset-y)]
+        [b-start-x b-start-y] [(max 0 offset-x)
+                               (max 0 offset-y)]
 
         ;; b's start + the effective size of a (and b).
         [b-end-x b-end-y] [(+ b-start-x effective-size-x)
