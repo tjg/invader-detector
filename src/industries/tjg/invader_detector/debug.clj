@@ -1,22 +1,20 @@
 (ns industries.tjg.invader-detector.debug
   (:require
-   [industries.tjg.invader-detector.format :as format]
    [industries.tjg.invader-detector.image :as image]
    [industries.tjg.invader-detector.match :as match]
-   [industries.tjg.invader-detector.parse :as parse]))
+   [industries.tjg.invader-detector.parse :as parse]
+   [industries.tjg.invader-detector.utils :as utils]))
 
 (defn bounding-box [{:keys [match color score]}]
-  (let [{:keys [effective-sizes
-                ::match/radar-offset
-                ::match/averaging-score]} match]
-    (let [[x y] radar-offset
-          [width height] effective-sizes
-          score-percent (Math/round (* 100 score))
-          score-text (str score-percent "%")]
-      {:x x :y y :width width :height height
-       :color color
-       :alpha (* 0.5 score)
-       :label score-text})))
+  (let [{:keys [effective-sizes ::match/radar-offset]} match
+        [x y] radar-offset
+        [width height] effective-sizes
+        score-percent (utils/round (* 100 score))
+        score-text (str score-percent "%")]
+    {:x x :y y :width width :height height
+     :color color
+     :alpha (* 0.5 score)
+     :label score-text}))
 
 (defn matches [invader radar]
   (->> (match/matches invader radar)

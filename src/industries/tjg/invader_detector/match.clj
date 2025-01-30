@@ -1,6 +1,5 @@
 (ns industries.tjg.invader-detector.match
   (:require
-   [clojure.string :as str]
    [industries.tjg.invader-detector.utils :as utils]))
 
 (defn- similarity-at-offset [a b {:keys [offset] :as _opts}]

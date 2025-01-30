@@ -10,7 +10,7 @@
 
 (defn copy-image
   "Copy a BufferedImage."
-  [img]
+  [^BufferedImage img]
   (let [copy (BufferedImage. (.getWidth img) (.getHeight img) (.getType img))
         gfx (.createGraphics copy)]
     (.drawImage gfx img 0 0 nil)
@@ -19,7 +19,7 @@
 
 (defn draw-ascii-text
   "Draw monospaced ASCII text. Returns a BufferedImage."
-  [image-string output-path]
+  [image-string]
   (let [ascii-lines (str/split-lines image-string)
         char-width  10
         char-height 15
@@ -35,8 +35,11 @@
     (.setColor gfx Color/BLACK)
 
     (doseq [[y line] (map-indexed vector ascii-lines)
-            [x char] (map-indexed vector line)]
-      (.drawString gfx (str char) (* x char-width) (* (inc y) char-height)))
+            [x character] (map-indexed vector line)]
+      (.drawString gfx
+                   (str character)
+                   (int (* x char-width))
+                   (int (* (inc y) char-height))))
 
     (.dispose gfx)
     img))
@@ -66,23 +69,31 @@
      (.dispose gfx)
      img)))
 
+(defn- make-color
+  ([{:keys [r g b]}]
+   (make-color r g b))
+  ([r g b]
+   (Color. (int r) (int g) (int b))))
+
 (defn- calculate-text-frame-color
-  "A dark color similar to the bounding box's color, for white text on
-  it to stand out."
+  "Dark color based on a bounding box's color.
+
+  Designed to make white text on it readable."
   [{:keys [r g b]}]
-  {:r (utils/round (/ r 2))
-   :g (utils/round (/ g 2))
-   :b (utils/round (/ b 2))})
+  (make-color (utils/round (/ r 2))
+              (utils/round (/ g 2))
+              (utils/round (/ b 2))))
 
 (defn- draw-bounding-box-label
   "Readably draws a label on a bounding box.
 
   Designed to be readable regardless of what's underneath it, though
   it may be obscured by any bounding boxes and labels on top of it."
-  [gfx label font-name font-size bounding-box-color bounding-box-x bounding-box-y]
+  [^java.awt.Graphics2D gfx
+   ^String label
+   font-name font-size bounding-box-color bounding-box-x bounding-box-y]
   (let [x (max bounding-box-x 0)
         y (max bounding-box-y 0)
-        {:keys [r g b]} (calculate-text-frame-color bounding-box-color)
 
         font (Font. font-name Font/PLAIN font-size)
         padding-around-text 2
@@ -98,23 +109,22 @@
         text-y      (+ y text-ascent padding-around-text)]
 
     ;; Draw underlying frame to make label more readable.
-    (.setColor      gfx (Color. r g b))
+    (.setColor      gfx (calculate-text-frame-color bounding-box-color))
     (.fillRoundRect gfx x y rect-width rect-height 10 10)
 
     ;; Draw text.
     (.setFont    gfx font)
     (.setColor   gfx Color/white)
-    (.drawString gfx label text-x text-y)))
+    (.drawString gfx label (int text-x) (int text-y))))
 
 (defn draw-bounding-boxes
-  [img bounding-boxes
+  [^BufferedImage img bounding-boxes
    {:keys [cell-width cell-height font-name font-size]
     :or {cell-width 10 cell-height 20 font-name "Monospaced" font-size 12}}]
   (let [gfx (.createGraphics img)]
     (doseq [{:keys [x y width height color alpha label]}
             bounding-boxes]
-      (let [{:keys [r g b]} color
-            [x y width height] [(* x cell-width)
+      (let [[x y width height] [(* x cell-width)
                                 (* y cell-height)
                                 (* width cell-width)
                                 (* height cell-height)]]
@@ -123,7 +133,7 @@
 
         ;; Fill bounding box.
         (.setComposite gfx (AlphaComposite/getInstance AlphaComposite/SRC_OVER alpha))
-        (.setColor     gfx (Color. r g b))
+        (.setColor     gfx (make-color color))
         (.fillRect     gfx x y width height)
 
         ;; Bounding box outline.
@@ -136,5 +146,5 @@
     (.dispose gfx)
     img))
 
-(defn save-image! [img output-file]
+(defn save-image! [^BufferedImage img ^String output-file]
   (ImageIO/write img "png" (File. output-file)))

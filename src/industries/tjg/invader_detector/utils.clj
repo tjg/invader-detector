@@ -1,9 +1,16 @@
 (ns industries.tjg.invader-detector.utils)
 
-(defn round [n]
-  (if (integer? n)
-    n
-    (Math/round (float n))))
+(defn round
+  "Rounds a number to the nearest integer, preserving types where possible."
+  [n]
+  (cond
+    (double? n) (Math/round ^double n)
+    (float? n)  (Math/round ^float n)
+    (ratio? n)  (Math/round (double n))
+    (integer? n) n
+    (instance? java.math.BigDecimal n) (.setScale ^java.math.BigDecimal n 0
+                                                  java.math.RoundingMode/HALF_UP)
+    :else (Math/round (double n))))
 
 (defn size [a]
   [(-> a first count)
@@ -37,12 +44,7 @@
 
         ;; b's offset, or 0 if it's negative.
         [b-start-x b-start-y] [(max 0 offset-x)
-                               (max 0 offset-y)]
-
-        ;; b's start + the effective size of a (and b).
-        [b-end-x b-end-y] [(+ b-start-x effective-size-x)
-                           (+ b-start-y effective-size-y)]
-        a-size-total (* a-size-x a-size-y)]
+                               (max 0 offset-y)]]
     {:a-start {:x a-start-x :y a-start-y}
      :b-start {:x b-start-x :y b-start-y}
      :a-size {:x a-size-x :y a-size-y}
