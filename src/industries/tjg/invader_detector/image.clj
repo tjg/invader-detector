@@ -99,10 +99,10 @@
   "This cell width & height is designed to resemble ASCII terminals."
   {:cell-width 10 :cell-height 20 :font-name "Monospaced" :font-size 12})
 
-(defn draw-grid
+(defn draw-pixel-matrix
   "Draw pixel grid. Returns a BufferedImage."
   ([pixel-matrix]
-   (draw-grid pixel-matrix {}))
+   (draw-pixel-matrix pixel-matrix {}))
   ([pixel-matrix opts]
    (let [{:keys [cell-width cell-height]} (merge default-draw-opts opts)
          [cols rows] (utils/size pixel-matrix)

@@ -33,13 +33,13 @@
    :horizontal-side-char \─
    :inner-bbox-char      \space})
 
-(defn format-pixel-matrix
+(defn draw-pixel-matrix
   "Format radar sample as unicode text.
 
   True & false pixels are emitted as `:char-true` & `:char-false` from
   `opts`, respectively. Defaults are specified in `default-draw-opts`."
   ([pixel-matrix]
-   (format-pixel-matrix pixel-matrix {}))
+   (draw-pixel-matrix pixel-matrix {}))
   ([pixel-matrix opts]
    (let [{:keys [char-true char-false]} (merge default-draw-opts opts)]
      (->> pixel-matrix
@@ -52,10 +52,10 @@
 
 ^:rct/test
 (comment
-  (format-pixel-matrix [[0 1 0]
-                        [1 0 0]]
-                       {:char-true \█
-                        :char-false \space})
+  (draw-pixel-matrix [[0 1 0]
+                      [1 0 0]]
+                     {:char-true \█
+                      :char-false \space})
   ;; => " █ \n█  "
 
   )
@@ -154,4 +154,4 @@ XXXXXXXX"
 (defn save-to-file!
   "Save ASCII to file."
   [pixel-matrix output-file]
-  (spit output-file (format-pixel-matrix pixel-matrix)))
+  (spit output-file (draw-pixel-matrix pixel-matrix)))
