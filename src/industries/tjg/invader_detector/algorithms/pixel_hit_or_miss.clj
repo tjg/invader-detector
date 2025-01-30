@@ -1,4 +1,4 @@
-(ns industries.tjg.invader-detector.match
+(ns industries.tjg.invader-detector.algorithms.pixel-hit-or-miss
   (:require
    [industries.tjg.invader-detector.utils :as utils]))
 

@@ -1,7 +1,7 @@
 (ns industries.tjg.invader-detector.debug
   (:require
+   [industries.tjg.invader-detector.algorithms.pixel-hit-or-miss :as match]
    [industries.tjg.invader-detector.image :as image]
-   [industries.tjg.invader-detector.match :as match]
    [industries.tjg.invader-detector.parse :as parse]
    [industries.tjg.invader-detector.utils :as utils]))
 
