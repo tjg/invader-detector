@@ -7,10 +7,11 @@
   "Simple ASCII text frame."
   {:char-true            \o
    :char-false           \-
-   :corner-x0-char       \┌
-   :corner-xN-char       \┐
-   :corner-y0-char       \└
-   :corner-yN-char       \┘
+   :transparent-bbox?    true
+   :corner-x0-char       \╭
+   :corner-xN-char       \╮
+   :corner-y0-char       \╰
+   :corner-yN-char       \╯
    :vertical-side-char   \│
    :horizontal-side-char \─
    :inner-bbox-char      \space})
@@ -27,8 +28,15 @@
       (= y yN)))
 
 (defn- label-pos? [label [x y] [x0 y0] [_ _]]
-  (and (= 1 (- y y0))
-       (<= (inc x0) x (+ x0 (count label)))))
+  (let [label-x-pos (<= (inc x0)
+                        x
+                        (+ x0 (count label)))]
+    (or
+     (and label-x-pos
+          (< y0 0)
+          (= y 0))
+     (and label-x-pos
+          (= 1 (- y y0))))))
 
 (defn- draw-scorebox [pixel-matrix {:keys [bbox score]} opts]
   (let [{:keys [corner-x0-char
@@ -37,12 +45,21 @@
                 corner-yN-char
                 vertical-side-char
                 horizontal-side-char
-                inner-bbox-char]}
+                inner-bbox-char
+                transparent-bbox?
+                pixel-matrix-0
+                char-true
+                char-false]}
         (merge default-draw-opts opts)
 
         label (utils/format-score-as-percent score)
         {:keys [width height]} bbox
         [x0 y0] [(:x bbox) (:y bbox)]
+        [xMax yMax] (utils/size pixel-matrix)
+
+        ;; Make frame surround bounding box.
+        [x0 y0] [(dec x0) (dec y0)]
+        [width height] [(+ 2 width) (+ 2 height)]
 
         xs (range width)
         ys (range height)
@@ -51,9 +68,17 @@
         ;; Don't draw label if bbox is too small.
         label-in-bbox-bounds? (and (> (dec width) (count label))
                                    (> height 1))
-        cartesian-product (for [x xs, y ys]
-                            [(+ x x0) (+ y y0)])]
-    (->> cartesian-product
+        points-to-draw (for [x xs, y ys]
+                         ;; Cartesian product: all points in rectangle.
+                         [(+ x x0) (+ y y0)])]
+    (->> points-to-draw
+         ;; Don't draw outside pixel-matrix bounds.
+         (filter (fn [[x y]]
+                   (and (<= 0 x)
+                        (<= 0 y)
+                        (< x xMax)
+                        (< y yMax))))
+         ;; Draw here.
          (reduce (fn [canvas [x y]]
                    (let [char-to-draw
                          (cond
@@ -61,53 +86,53 @@
                                 (label-pos? label [x y] [x0 y0] [xN yN]))
                            (get label (dec (- x x0)))
 
-                           (= [x y] [x0 y0])
-                           corner-x0-char
-
-                           (= [x y] [xN y0])
-                           corner-xN-char
-
-                           (= [x y] [x0 yN])
-                           corner-y0-char
-
-                           (= [x y] [xN yN])
-                           corner-yN-char
-
+                           (= [x y] [x0 y0]) corner-x0-char
+                           (= [x y] [xN y0]) corner-xN-char
+                           (= [x y] [x0 yN]) corner-y0-char
+                           (= [x y] [xN yN]) corner-yN-char
                            (vertical-side? [x y] [x0 y0] [xN yN])
                            vertical-side-char
-
                            (horizontal-side? [x y] [x0 y0] [xN yN])
                            horizontal-side-char
 
-                           :else inner-bbox-char)]
+                           :else
+                           (if (and transparent-bbox? pixel-matrix-0)
+                             ;; If has original matrix.
+                             (get-in pixel-matrix-0 [y x])
+                             inner-bbox-char))]
 
                      (assoc-in canvas [y x] char-to-draw)))
                  pixel-matrix))))
 
 ^:rct/test
 (comment
-  (->> (draw-scorebox [[\X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X]]
+  (->> (draw-scorebox [[\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]
+                       [\X \X \X \X \X \X \X \X \X \X]]
                       {:score 1/10
-                       :bbox {:x 1 :y 1 :width 6 :height 4}}
-                      {})
+                       :bbox {:x 2 :y 2 :width 6 :height 4}}
+                      {:transparent-bbox? false
+                       :inner-bbox-char \space})
        (map #(apply str %))
        (str/join \newline))
   ;; =>
-"XXXXXXXX
-X┌────┐X
-X│10% │X
-X│    │X
-X└────┘X
-XXXXXXXX
-XXXXXXXX
-XXXXXXXX"
+"XXXXXXXXXX
+X╭──────╮X
+X│10%   │X
+X│      │X
+X│      │X
+X│      │X
+X╰──────╯X
+XXXXXXXXXX
+XXXXXXXXXX
+XXXXXXXXXX"
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -123,12 +148,10 @@ XXXXXXXX"
   ([pixel-matrix opts]
    (let [{:keys [char-true char-false]} (merge default-draw-opts opts)]
      (->> pixel-matrix
-          (map (fn [row]
-                 (->> row
-                      (map (fn [pixel]
-                             (if (zero? pixel) char-false char-true)))
-                      (apply str))))
-          (str/join \newline)))))
+          (mapv (fn [row]
+                  (->> row
+                       (mapv (fn [pixel]
+                               (if (zero? pixel) char-false char-true))))))))))
 
 ^:rct/test
 (comment
@@ -136,7 +159,7 @@ XXXXXXXX"
                       [1 0 0]]
                      {:char-true \█
                       :char-false \space})
-  ;; => " █ \n█  "
+  ;; => [[\space \█ \space] [\█ \space \space]]
   )
 
 (defn draw-scoreboxes
@@ -144,12 +167,17 @@ XXXXXXXX"
 
   `opts` enables additional config. See `default-draw-opts`."
   [pixel-matrix scoreboxes opts]
-  (->> scoreboxes
-       (reduce (fn [pixel-matrix scorebox]
-                 (draw-scorebox pixel-matrix scorebox opts))
-               pixel-matrix)))
+  (let [opts (merge {:pixel-matrix-0 pixel-matrix}  ;; Useful for transparency.
+                    opts)]
+    (->> scoreboxes
+         (reduce (fn [pixel-matrix scorebox]
+                   (draw-scorebox pixel-matrix scorebox opts))
+                 pixel-matrix))))
 
 (defn save-to-file!
   "Save ASCII to file."
   [pixel-matrix output-file]
-  (spit output-file (draw-pixel-matrix pixel-matrix)))
+  (let [ascii-text (->> pixel-matrix
+                        (map #(apply str %))
+                        (str/join \newline))]
+    (spit output-file ascii-text)))
