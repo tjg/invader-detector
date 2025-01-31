@@ -58,3 +58,9 @@
   [score]
   (let [score-percent (round (* 100 score))]
     (str score-percent "%")))
+
+(defn cartesian-product
+  "All pairs [x,y] for each x ∈ xs and y ∈ ys."
+  [xs ys]
+  (for [x xs, y ys]
+    [x y]))

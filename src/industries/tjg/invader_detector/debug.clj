@@ -32,7 +32,7 @@
         (image/save-to-file! "resources/blah.png"))
 
     (-> (emit/draw-pixel-matrix radar {:char-true \█ :char-false \space})
-        (emit/draw-scoreboxes all-matches {:transparent-bbox? true})
+        (emit/draw-scoreboxes all-matches {:transparent-fill? true})
         (emit/save-to-file! "resources/blah.txt"))
 
     (->> all-matches

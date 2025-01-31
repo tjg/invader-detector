@@ -7,7 +7,8 @@
   "Simple ASCII text frame."
   {:char-true            \o
    :char-false           \-
-   :transparent-bbox?    true
+   :transparent-fill?    true
+   :label-offset         {:x 1 :y 1}
    :corner-x0-char       \╭
    :corner-xN-char       \╮
    :corner-y0-char       \╰
@@ -19,6 +20,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Utils
 
+;; Notation:
+;; - `0`     is the pixel matrix's min x-index.
+;; - `x`     is relative to `pixel-matrix`'s origin.
+;; - `x0`    is `x`'s min value when drawing a rectangle.
+;; - `xN`    is `x`'s max value when drawing a rectangle.
+;; - `xSize` is the pixel matrix's width.
+
 (defn- vertical-side? [[x _] [x0 _] [xN _]]
   (or (= x x0)
       (= x xN)))
@@ -27,79 +35,97 @@
   (or (= y y0)
       (= y yN)))
 
-(defn- label-pos? [label [x y] [x0 y0] [_ _]]
-  (let [label-x-pos (<= (inc x0)
-                        x
-                        (+ x0 (count label)))]
-    (or
-     (and label-x-pos
-          (< y0 0)
-          (= y 0))
-     (and label-x-pos
-          (= 1 (- y y0))))))
+(defn- draw-label-char? [label [x y] [x0 y0] [_ yN] label-offset]
+  (and
+   ;; `x` is in the label's column.
+   (<= (+ x0 (:x label-offset))
+       x
+       (dec (+ x0
+               (count label)
+               (:x label-offset))))
+   ;; `y` is in the label's row.
+   (or
+    (= y
+       (+ y0 (:y label-offset)))
+    ;; Box straddles radar upper edge? Draw label on that edge.
+    (and (< y0 0)
+         (<= 0 yN)
+         (= y 0)))))
+
+(defn- char-to-draw [[x y] [x0 y0] [xN yN]
+                     [width height]
+                     label
+                     {:keys [corner-x0-char
+                             corner-xN-char
+                             corner-y0-char
+                             corner-yN-char
+                             vertical-side-char
+                             horizontal-side-char
+                             inner-bbox-char
+                             label-offset
+                             transparent-fill?
+                             ::pixel-matrix-background]}]
+  (let [ ;; Don't draw label if can't fit in bbox.
+        label-in-bbox-bounds? (and (> (dec width) (count label))
+                                   (> height 1))]
+    (cond
+      ;; Is this a label? Print its character.
+      (and label-in-bbox-bounds?
+           (draw-label-char? label [x y] [x0 y0] [xN yN] label-offset))
+      (get label (dec (- x x0)))
+
+      ;; Corners.
+      (= [x y] [x0 y0]) corner-x0-char
+      (= [x y] [xN y0]) corner-xN-char
+      (= [x y] [x0 yN]) corner-y0-char
+      (= [x y] [xN yN]) corner-yN-char
+
+      ;; Sides.
+      (vertical-side? [x y] [x0 y0] [xN yN])
+      vertical-side-char
+      (horizontal-side? [x y] [x0 y0] [xN yN])
+      horizontal-side-char
+
+      :else ;; Inside the box.
+      (if (and transparent-fill? pixel-matrix-background)
+        ;; If transparent & we have underlying matrix, print it.
+        (get-in pixel-matrix-background [y x])
+        ;; Print a default character.
+        inner-bbox-char))))
 
 (defn- draw-scorebox [pixel-matrix {:keys [bbox score]} opts]
-  (let [{:keys [corner-x0-char
-                corner-xN-char
-                corner-y0-char
-                corner-yN-char
-                vertical-side-char
-                horizontal-side-char
-                inner-bbox-char
-                transparent-bbox?
-                pixel-matrix-0]}
-        (merge default-draw-opts opts)
-
+  (let [opts (merge {::pixel-matrix-background pixel-matrix}
+                    default-draw-opts
+                    opts)
         label (utils/format-score-as-percent score)
+
         {:keys [width height]} bbox
         [x0 y0] [(:x bbox) (:y bbox)]
-        [xMax yMax] (utils/size pixel-matrix)
+        [xSize ySize] (utils/size pixel-matrix)
 
-        ;; Make frame surround bounding box.
+        ;; Widen frame to surround the bounding box.
         [x0 y0] [(dec x0) (dec y0)]
         [width height] [(+ 2 width) (+ 2 height)]
+        [xN yN] [(dec (+ x0 width))
+                 (dec (+ y0 height))]
 
-        xs (range width)
-        ys (range height)
-        xN (dec (+ x0 width))
-        yN (dec (+ y0 height))
-        ;; Don't draw label if bbox is too small.
-        label-in-bbox-bounds? (and (> (dec width) (count label))
-                                   (> height 1))
-        points-to-draw (for [x xs, y ys]
-                         ;; Cartesian product: all points in rectangle.
-                         [(+ x x0) (+ y y0)])]
+        points-to-draw (utils/cartesian-product
+                        (range x0 (+ x0 width))
+                        (range y0 (+ y0 height)))]
     (->> points-to-draw
          ;; Don't draw outside pixel-matrix bounds.
          (filter (fn [[x y]]
                    (and (<= 0 x)
                         (<= 0 y)
-                        (< x xMax)
-                        (< y yMax))))
-         ;; Draw here.
-         (reduce (fn [canvas [x y]]
-                   (let [char-to-draw
-                         (cond
-                           (and label-in-bbox-bounds?
-                                (label-pos? label [x y] [x0 y0] [xN yN]))
-                           (get label (dec (- x x0)))
-
-                           (= [x y] [x0 y0]) corner-x0-char
-                           (= [x y] [xN y0]) corner-xN-char
-                           (= [x y] [x0 yN]) corner-y0-char
-                           (= [x y] [xN yN]) corner-yN-char
-                           (vertical-side? [x y] [x0 y0] [xN yN])
-                           vertical-side-char
-                           (horizontal-side? [x y] [x0 y0] [xN yN])
-                           horizontal-side-char
-
-                           :else
-                           (if (and transparent-bbox? pixel-matrix-0)
-                             ;; If has original matrix.
-                             (get-in pixel-matrix-0 [y x])
-                             inner-bbox-char))]
-
-                     (assoc-in canvas [y x] char-to-draw)))
+                        (< x xSize)
+                        (< y ySize))))
+         ;; Draw the scorebox on the pixel matrix.
+         (reduce (fn [pixel-matrix [x y]]
+                   (assoc-in pixel-matrix [y x]
+                             (char-to-draw [x y] [x0 y0] [xN yN]
+                                           [width height]
+                                           label
+                                           opts)))
                  pixel-matrix))))
 
 ^:rct/test
@@ -112,52 +138,57 @@
                        [\X \X \X \X \X \X \X \X \X \X]
                        [\X \X \X \X \X \X \X \X \X \X]
                        [\X \X \X \X \X \X \X \X \X \X]
-                       [\X \X \X \X \X \X \X \X \X \X]
                        [\X \X \X \X \X \X \X \X \X \X]]
-                      {:score 1/10
+                      {:score 1/10 ;; Label will say `10%`.
                        :bbox {:x 2 :y 2 :width 6 :height 4}}
-                      {:transparent-bbox? false
-                       :inner-bbox-char \space})
+                      {:label-offset {:x 1, :y 0} ;; Score label position.
+                       :transparent-fill? false   ;; Enable ``:inner-bbox-char`.`
+                       :inner-bbox-char \space    ;; Blank spaces inside box.
+                       })
+       ;; Format as string.
        (map #(apply str %))
        (str/join \newline))
   ;; =>
-"XXXXXXXXXX
-X╭──────╮X
-X│10%   │X
+  "XXXXXXXXXX
+X╭10%───╮X
+X│      │X
 X│      │X
 X│      │X
 X│      │X
 X╰──────╯X
 XXXXXXXXXX
-XXXXXXXXXX
 XXXXXXXXXX"
-)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public API
 
 (defn draw-pixel-matrix
-  "Format radar sample as unicode text.
+  "Format pixel matrix as unicode text.
 
-  True & false pixels are emitted as `:char-true` & `:char-false` from
-  `opts`, respectively. Defaults are specified in `default-draw-opts`."
-  ([pixel-matrix]
-   (draw-pixel-matrix pixel-matrix {}))
-  ([pixel-matrix opts]
-   (let [{:keys [char-true char-false]} (merge default-draw-opts opts)]
-     (->> pixel-matrix
-          (mapv (fn [row]
-                  (->> row
-                       (mapv (fn [pixel]
-                               (if (zero? pixel) char-false char-true))))))))))
+  True & false pixels are represented as `:char-true` & `:char-false`
+  from `opts`, respectively. Defaults in `default-draw-opts`."
+  [pixel-matrix opts]
+  (let [{:keys [char-true char-false]} (merge default-draw-opts opts)
+        char-pixel-matrix
+        (->> pixel-matrix
+             (mapv (fn [row]
+                     (->> row
+                          (mapv (fn [pixel]
+                                  (if (zero? pixel) char-false char-true)))))))]
+    (with-meta char-pixel-matrix
+      ;; Remember this original background to draw transparent windows later.
+      {::pixel-matrix-background char-pixel-matrix})))
 
 ^:rct/test
 (comment
-  (draw-pixel-matrix [[0 1 0]
+  (draw-pixel-matrix [[1 1 0]
                       [1 0 0]]
-                     {:char-true \█
-                      :char-false \space})
-  ;; => [[\space \█ \space] [\█ \space \space]]
+                     {:char-true  \█
+                      :char-false \-})
+  ;; =>
+  [[\█ \█ \-]
+   [\█ \- \-]]
   )
 
 (defn draw-scoreboxes
@@ -165,12 +196,14 @@ XXXXXXXXXX"
 
   `opts` enables additional config. See `default-draw-opts`."
   [pixel-matrix scoreboxes opts]
-  (let [opts (merge {:pixel-matrix-0 pixel-matrix}  ;; Useful for transparency.
-                    opts)]
-    (->> scoreboxes
-         (reduce (fn [pixel-matrix scorebox]
-                   (draw-scorebox pixel-matrix scorebox opts))
-                 pixel-matrix))))
+  (let [orig-meta (meta pixel-matrix)
+        opts (merge orig-meta opts)
+        char-pixel-matrix (->> scoreboxes
+                               (reduce (fn [pixel-matrix scorebox]
+                                         (draw-scorebox pixel-matrix scorebox opts))
+                                       pixel-matrix))]
+    (with-meta char-pixel-matrix
+      orig-meta)))
 
 (defn save-to-file!
   "Save ASCII to file."
