@@ -51,7 +51,7 @@
      :b-start {:x b-start-x :y b-start-y}
      :a-size {:x a-size-x :y a-size-y}
      :b-size {:x b-size-x :y b-size-y}
-     :overlap-size {:x effective-size-x :y effective-size-y}}))
+     :overlap-size {:width effective-size-x :height effective-size-y}}))
 
 (defn format-score-as-percent
   "Format ratio as percentage."
