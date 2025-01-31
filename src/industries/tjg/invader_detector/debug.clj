@@ -1,5 +1,6 @@
 (ns industries.tjg.invader-detector.debug
   (:require
+   [clojure.pprint :as pprint]
    [industries.tjg.invader-detector.algorithms.pixel-hit-or-miss :as match]
    [industries.tjg.invader-detector.emit :as emit]
    [industries.tjg.invader-detector.image :as image]
@@ -32,9 +33,13 @@
 
     (-> (emit/draw-pixel-matrix radar {:char-true \█ :char-false \space})
         (emit/draw-scoreboxes all-matches {:transparent-bbox? true})
-        (emit/save-to-file! "resources/blah.txt"))))
+        (emit/save-to-file! "resources/blah.txt"))
+
+    (->> all-matches
+         (map #(dissoc % :color)))))
 
 (comment
-  (make-invader-location-image!)
+  (->> (make-invader-location-image!)
+       pprint/pprint)
 
   )

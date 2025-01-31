@@ -58,8 +58,9 @@
     (.setColor   gfx Color/white)
     (.drawString gfx label (int text-x) (int text-y))))
 
-(defn- draw-scorebox [gfx {:keys [bbox score color]}
-                     {:keys [cell-width cell-height font-name font-size]}]
+(defn- draw-scorebox [^java.awt.Graphics2D gfx
+                      {:keys [bbox score color]}
+                      {:keys [cell-width cell-height font-name font-size]}]
   (let [{:keys [x y width height]} bbox
 
         alpha (* score 0.5)
