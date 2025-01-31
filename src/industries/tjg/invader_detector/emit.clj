@@ -47,9 +47,7 @@
                 horizontal-side-char
                 inner-bbox-char
                 transparent-bbox?
-                pixel-matrix-0
-                char-true
-                char-false]}
+                pixel-matrix-0]}
         (merge default-draw-opts opts)
 
         label (utils/format-score-as-percent score)
