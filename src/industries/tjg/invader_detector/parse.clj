@@ -20,21 +20,33 @@
 
 ^:rct/test
 (comment
-  (pad-vectors 0 [[1] [1 1] [1]])
-  ;; => [[1 0] [1 1] [1 0]]
-  )
+  (pad-vectors 0 [[] [1] [1 1] [1 1 1]])
+  ;; =>
+  [[0 0 0] [1 0 0] [1 1 0] [1 1 1]])
 
-(defn- parse-char [ch chars-true chars-false line-idx char-idx]
-  (cond (chars-true ch) 1
-        (chars-false ch) 0
-        :else (throw (ex-info
-                      "Unknown character"
-                      {:character ch
-                       :line-idx line-idx
-                       :char-idx char-idx}))))
+(defn- parse-char [ch chars-true chars-false
+                   chars-false-by-default? line-idx char-idx]
+  (cond (chars-true ch)
+        1
+        (or (chars-false ch)
+            chars-false-by-default?)
+        0
+        :else
+        (throw (ex-info
+                "Unknown character"
+                {:character ch
+                 :line-idx line-idx
+                 :char-idx char-idx}))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public API
+
+(def default-opts
+  "Strict parsing that accepts both upper & lowercase `o` characters."
+  {:chars-true [\o \O]
+   :chars-false [\-]
+   :pad-lines? false
+   :chars-false-by-default false})
 
 (defn parse-radar-sample
   "Parse unicode radar data into a 2D vector denoting true/false pixels.
@@ -48,7 +60,7 @@
      equal lengths.
 
   An exception is thrown if `s` contains an unknown character."
-  [s {:keys [chars-true chars-false pad-lines?]
+  [s {:keys [chars-true chars-false pad-lines? chars-false-by-default?]
       :or {chars-true [\o \O] chars-false [\-]}
       :as _opts}]
   (let [chars-true (set chars-true)
@@ -64,10 +76,28 @@
             (->> line
                  (map-indexed (fn [char-idx ch]
                                 (parse-char ch chars-true chars-false
+                                            chars-false-by-default?
                                             line-idx char-idx)))
                  vec)))
          possibly-pad-vectors
          vec)))
+
+^:rct/test
+(comment
+  ;; Simple parser.
+  (-> "---oO\noOo-"
+      (parse-radar-sample {:chars-true [\o \O] :chars-false [\-]}))
+  ;; =>
+  [[0 0 0 1 1]
+   [1 1 1 0  ]]
+
+  ;; Lenient parser.
+  (-> "---oO\n??"
+      (parse-radar-sample {:chars-true [\o \O] :chars-false [\-]
+                           :pad-lines? true :chars-false-by-default? true}))
+  ;; =>
+  [[0 0 0 1 1]
+   [0 0 0 0 0]])
 
 (defn parse-radar-sample-from-file
   "Parse unicode radar data into a 2D vector denoting true/false pixels.
@@ -87,20 +117,3 @@
    (-> file
        slurp
        (parse-radar-sample opts))))
-
-^:rct/test
-(comment
-  (-> "--o-O\noOo-"
-      (parse-radar-sample {:chars-true [\o \O] :chars-false [\-]}))
-  ;; => [[0 0 1 0 1]
-  ;;     [1 1 1 0  ]]
-
-  ;; What characters exist in all sample files?
-  (->> ["resources/spec-radar-sample.txt"
-        "resources/spec-invader-1.txt"
-        "resources/spec-invader-2.txt"]
-       (map slurp)
-       (apply str)
-       frequencies) ;; => {\- 3995, \o 1156, \newline 66, \O 1}
-
-  )

@@ -142,14 +142,16 @@
                       {:score 1/10 ;; Label will say `10%`.
                        :bbox {:x 2 :y 2 :width 6 :height 4}}
                       {:label-offset {:x 1, :y 0} ;; Score label position.
-                       :transparent-fill? false   ;; Enable ``:inner-bbox-char`.`
+                       :transparent-fill? false   ;; Enable `:inner-bbox-char`.
                        :inner-bbox-char \space    ;; Blank spaces inside box.
                        })
-       ;; Format as string.
+       ;; Format as string (with a newline at the beginning for readability).
        (map #(apply str %))
-       (str/join \newline))
+       (str/join \newline)
+       (str \newline))
   ;; =>
-  "XXXXXXXXXX
+  "
+XXXXXXXXXX
 X╭10%───╮X
 X│      │X
 X│      │X
@@ -157,8 +159,7 @@ X│      │X
 X│      │X
 X╰──────╯X
 XXXXXXXXXX
-XXXXXXXXXX"
-  )
+XXXXXXXXXX")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public API
