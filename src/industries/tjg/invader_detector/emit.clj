@@ -53,7 +53,6 @@
          (= y 0)))))
 
 (defn- char-to-draw [[x y] [x0 y0] [xN yN]
-                     [width height]
                      label
                      {:keys [corner-x0-char
                              corner-xN-char
@@ -65,32 +64,29 @@
                              label-offset
                              transparent-fill?
                              ::pixel-matrix-background]}]
-  (let [ ;; Don't draw label if can't fit in bbox.
-        label-in-bbox-bounds? (and (> (dec width) (count label))
-                                   (> height 1))]
-    (cond
-      ;; Is this a label? Print its character.
-      (draw-label-char? label [x y] [x0 y0] [xN yN] label-offset)
-      (get label (- x x0 (:x label-offset)))
+  (cond
+    ;; Is this a label? Print its character.
+    (draw-label-char? label [x y] [x0 y0] [xN yN] label-offset)
+    (get label (- x x0 (:x label-offset)))
 
-      ;; Corners.
-      (= [x y] [x0 y0]) corner-x0-char
-      (= [x y] [xN y0]) corner-xN-char
-      (= [x y] [x0 yN]) corner-y0-char
-      (= [x y] [xN yN]) corner-yN-char
+    ;; Corners.
+    (= [x y] [x0 y0]) corner-x0-char
+    (= [x y] [xN y0]) corner-xN-char
+    (= [x y] [x0 yN]) corner-y0-char
+    (= [x y] [xN yN]) corner-yN-char
 
-      ;; Sides.
-      (vertical-side? [x y] [x0 y0] [xN yN])
-      vertical-side-char
-      (horizontal-side? [x y] [x0 y0] [xN yN])
-      horizontal-side-char
+    ;; Sides.
+    (vertical-side? [x y] [x0 y0] [xN yN])
+    vertical-side-char
+    (horizontal-side? [x y] [x0 y0] [xN yN])
+    horizontal-side-char
 
-      :else ;; Inside the box.
-      (if (and transparent-fill? pixel-matrix-background)
-        ;; If transparent & we have underlying matrix, print it.
-        (get-in pixel-matrix-background [y x])
-        ;; Print a default character.
-        inner-bbox-char))))
+    :else ;; Inside the box.
+    (if (and transparent-fill? pixel-matrix-background)
+      ;; If transparent & we have underlying matrix, print it.
+      (get-in pixel-matrix-background [y x])
+      ;; Print a default character.
+      inner-bbox-char)))
 
 (defn- draw-scorebox [pixel-matrix {:keys [bbox score]} opts]
   (let [opts (merge {::pixel-matrix-background pixel-matrix}
@@ -122,7 +118,6 @@
          (reduce (fn [pixel-matrix [x y]]
                    (assoc-in pixel-matrix [y x]
                              (char-to-draw [x y] [x0 y0] [xN yN]
-                                           [width height]
                                            label
                                            opts)))
                  pixel-matrix))))
