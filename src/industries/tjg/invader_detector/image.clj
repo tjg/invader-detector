@@ -136,3 +136,10 @@
   [^BufferedImage img ^String output-file {:keys [image-format]}]
   (ImageIO/write img image-format (File. output-file))
   img)
+
+(defn supported-image-formats
+  "List of supported image types.
+
+  Returns strings that correspond to common filename extensions."
+  []
+  (ImageIO/getReaderFormatNames))

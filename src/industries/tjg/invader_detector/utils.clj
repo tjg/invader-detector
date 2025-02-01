@@ -1,4 +1,6 @@
-(ns industries.tjg.invader-detector.utils)
+(ns industries.tjg.invader-detector.utils
+  (:require
+   [clojure.pprint :as pprint]))
 
 (defn round
   "Rounds a number to the nearest integer, preserving types where possible."
@@ -11,6 +13,18 @@
     (instance? java.math.BigDecimal n) (.setScale ^java.math.BigDecimal n 0
                                                   java.math.RoundingMode/HALF_UP)
     :else (Math/round (double n))))
+
+(defn format-edn
+  "Format data as EDN-encoded string."
+  ([x]
+   (format-edn x {}))
+  ([x {:keys [pretty?] :or {pretty? true}}]
+   (binding [*print-length* nil
+             *print-level*  nil]
+     (if pretty?
+       (with-out-str
+         (pprint/pprint x))
+       (pr-str x)))))
 
 (defn size
   "Calculates size of 2D vector as [size-x, size-y]."
