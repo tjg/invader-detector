@@ -26,8 +26,8 @@
                                (/ score-threshold 100)))))))
 
 (defn- draw-ascii!
-  ([{:keys [matches] :as opts}]
-   (draw-ascii! matches  opts))
+  ([{:keys [radar matches] :as opts}]
+   (draw-ascii! radar matches opts))
   ([radar matches {:keys [output-ascii
                           output-on-char
                           output-off-char
