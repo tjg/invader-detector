@@ -17,6 +17,9 @@
    :output-on-char \o
    :output-off-char \-})
 
+(defn- kwd-to-switch [kwd]
+  (->> kwd name (format "--%s")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Schemas
 
@@ -182,9 +185,9 @@
    ["-h" "--help"]])
 
 (defn- usage [options-summary]
-  (->> ["This is my program. There are many like it, but this one is mine."
+  (->> ["Detect invaders in radar samples."
         ""
-        "Usage: program-name [options]"
+        "Usage: ./invader-detector.sh [options]"
         ""
         "Options:"
         options-summary]
@@ -207,12 +210,14 @@
   (let [{:keys [options _arguments errors summary]}
         (cli/parse-opts args cli-options)
         opt-keys (->> options keys set)
+        input-switches (->> [:radar-sample-file :invader-files]
+                            (map kwd-to-switch))
         output-formats #{:output-ascii :output-images
                          :save-matches :print-matches}
         output-format-switches (->> output-formats
-                                    (map name)
-                                    (map #(format "--%s" %))
-                                    sort)]
+                                    (map kwd-to-switch)
+                                    sort)
+        help-pointer "Use --help for more explanations."]
     (cond
       (:help options)
       {:exit-message (usage summary) :ok? true}
@@ -220,7 +225,15 @@
       errors
       {:exit-message (error-msg errors)}
 
-      (not (seq (set/intersection opt-keys output-formats)))
+      (not (every? #(contains? options %) required-args))
+      {:exit-message
+       (error-msg
+        (concat ["Must specify a radar sample and at least one invader:"]
+                input-switches
+                [""
+                 help-pointer]))}
+
+      (not (some #(contains? options %) output-formats))
       {:exit-message
        (error-msg
         (concat ["Must specify at least one output format."
@@ -228,7 +241,7 @@
                  "Output format switches:"]
                 output-format-switches
                 [""
-                 "Use --help for more explanation of each switch."]))}
+                 help-pointer]))}
 
       ;; FIXME: let user know what's required
       (seq (set/intersection opt-keys required-args))
