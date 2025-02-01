@@ -78,3 +78,34 @@
   [xs ys]
   (for [x xs, y ys]
     [x y]))
+
+(def hex-color-code-regex
+  "Matches strings like `#aabbcc`."
+  #"^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$")
+
+(defn hex-to-rgb
+  "Formats hex-encoded color string into {:keys [r g b]} map."
+  [hex-color-code]
+  (let [[_ r g b]
+        (re-matches hex-color-code-regex hex-color-code)]
+    {:r (Integer/parseInt r 16)
+     :g (Integer/parseInt g 16)
+     :b (Integer/parseInt b 16)}))
+
+(defn rgb-to-hex
+  "Formats {:keys [r g b]} map into hex-encoded color string."
+  [{:keys [r g b]}]
+  (format "#%02x%02x%02x" r g b))
+
+
+^:rct/test
+(comment
+  (rgb-to-hex {:r 16 :g 0 :b 255})
+  ;; =>
+  "#1000ff"
+
+  (-> {:r 16 :g 0 :b 255}
+      rgb-to-hex
+      hex-to-rgb)
+  ;; =>
+  {:r 16 :g 0 :b 255})  ;; Back to the original color.

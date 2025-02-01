@@ -5,8 +5,7 @@
    [industries.tjg.invader-detector.emit :as emit]
    [industries.tjg.invader-detector.image :as image]
    [industries.tjg.invader-detector.parse :as parse]
-   [industries.tjg.invader-detector.utils :as utils]
-   [me.raynes.fs :as fs]))
+   [industries.tjg.invader-detector.utils :as utils]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Utils
@@ -15,10 +14,9 @@
                     {:keys [score-threshold max-results]}]
   (cond->> invaders
     true        (mapcat
-                 (fn [invader]
-                   (->> (match/matches invader radar)
-                        ;; FIXME: colors
-                        (map #(assoc % :color {:r 67 :g 0 :b 255})))))
+                 (fn [{:keys [invader-id pixel-matrix]}]
+                   (->> (match/matches pixel-matrix radar)
+                        (map #(assoc % :invader-id invader-id)))))
     true        (sort-by :score)
     max-results (take-last max-results)
     true        (filter (fn [{:keys [score]}]
@@ -37,17 +35,28 @@
         (emit/draw-scoreboxes matches draw-opts)
         (emit/save-to-file! output-ascii {}))))
 
-(defn- draw-images! [radar matches {:keys [output-images]}]
-  (let [img (-> (image/draw-pixel-matrix radar {})
-                (image/draw-scoreboxes matches {}))]
+(defn- draw-images! [invaders radar matches {:keys [output-images invader-colors]}]
+  (let [invader-color-table (->> [(->> invaders
+                                       (map :invader-id))
+                                  (cycle invader-colors)]
+                                 (apply map vector)
+                                 (into {}))
+        colored-matches (->> matches
+                             (map (fn [{:keys [invader-id] :as match}]
+                                    (assoc match
+                                           :color (invader-color-table invader-id)))))
+        img (-> (image/draw-pixel-matrix radar {})
+                (image/draw-scoreboxes colored-matches {}))]
     (doseq [filename output-images]
-      (let [image-format (-> filename fs/extension str/lower-case (subs 1))]
+      (let [image-format (-> filename
+                             (str/split #"\.")
+                             last)]
         (image/save-to-file! img filename
                              {:image-format image-format})))))
 
 (defn- save-matches-to-file! [matches {:keys [save-matches]}]
   (let [edn (->> matches
-                 (map #(select-keys % [:bbox :score]))
+                 (map #(select-keys % [:invader-id :bbox :score]))
                  utils/format-edn)]
     (spit save-matches edn)))
 
@@ -60,7 +69,7 @@
 
 (defn- print-matches! [matches _opts]
   (->> matches
-       (map #(select-keys % [:bbox :score]))
+       (map #(select-keys % [:invader-id :bbox :score]))
        utils/format-edn
        print))
 
@@ -84,7 +93,10 @@
 
   (let [ ;; Parse input files.
         invaders (->> invader-files
-                      (map #(parse-radar-sample % opts)))
+                      (map #(parse-radar-sample % opts))
+                      (map-indexed (fn [id invader]
+                                     {:invader-id id
+                                      :pixel-matrix invader})))
         radar (parse-radar-sample radar-sample-file opts)
 
         ;; Matches.
@@ -96,7 +108,7 @@
 
     ;; Output to images.
     (when output-images
-      (draw-images! radar matches opts))
+      (draw-images! invaders radar matches opts))
 
     (when save-matches
       (save-matches-to-file! matches opts))

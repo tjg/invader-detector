@@ -5,17 +5,59 @@
    [clojure.string :as str]
    [clojure.tools.cli :as cli]
    [industries.tjg.invader-detector.run :as run]
-   [me.raynes.fs :as fs]))
+   [industries.tjg.invader-detector.utils :as utils]
+   [malli.core :as malli]))
+
+(def ^:private default-opts
+  {:invader-colors [{:r 67, :g 0, :b 255}
+                    {:r 68, :g 242, :b 13}]
+   :input-on-chars [\o \O]
+   :input-off-chars [\-]
+   :score-threshold 70
+   :output-on-char \o
+   :output-off-char \-})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Utils
+;;; Validators
+
+(def ^:private color-schema
+  [:map
+   [:r [:int {:min 0 :max 255}]]
+   [:g [:int {:min 0 :max 255}]]
+   [:b [:int {:min 0 :max 255}]]])
+
+(def ^:private multiple-colors-schema
+  [:sequential {:min 1} color-schema])
+
+(def ^:private hex-encoded-color-schema
+  [:re utils/hex-color-code-regex])
+
+(def ^:private multiple-hex-encoded-colors-schema
+  [:sequential {:min 1} hex-encoded-color-schema])
+
+(defn- valid-colors? [colors]
+  (malli/validate multiple-colors-schema colors))
+
+(defn- valid-hex-encoded-colors? [colors]
+  (malli/validate multiple-hex-encoded-colors-schema colors))
+
+(def ^:private image-file-schema
+  [:and
+   string?
+   [:fn
+    {:error/message
+     "File's extension doesn't correspond to supported image formats."}
+    (fn [s]
+      (->> run/available-image-formats
+           (some (fn [image-fmt]
+                   (clojure.string/ends-with? (str/lower-case s)
+                                              (str "." image-fmt))))))]])
+
+(def ^:private multiple-image-files-schema
+  [:sequential {:min 1} image-file-schema])
 
 (defn- validate-image-filepaths [image-paths]
-  (->> image-paths
-       (map fs/extension)
-       (map #(subs % 1))
-       (map str/lower-case)
-       (every? run/available-image-formats)))
+  (malli/validate multiple-image-files-schema image-paths))
 
 ^:rct/test
 (comment
@@ -24,6 +66,15 @@
   (validate-image-filepaths ["foo.txt"])
   ;; => false
 )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Formatters
+
+(defn- multiple-chars-formatter [characters]
+  (str/join "," characters))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Parsers
 
 (defn- multiple-chars-parser [s]
   (let [strs (str/split s #",")]
@@ -40,6 +91,16 @@
     (throw (ex-info "Must be a single char" {:char s})))
   (first s))
 
+(defn- colors-parser [s]
+  (let [strs (str/split s #",")]
+    (when-not (valid-hex-encoded-colors? strs)
+      (throw (ex-info "Invalid hex color(s)" {:colors strs})))
+    (->> strs
+         (map utils/hex-to-rgb))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; CLI options
+
 (def ^:private cli-options
   "Commandline opts."
   [[nil "--radar-sample-file FILE" "Radar sample file"]
@@ -48,12 +109,12 @@
 
    ;; Parsing.
    [nil "--input-on-chars CHARS" "Characters denoting 'on', separated by commas"
-    :default [\o \O]
-    :default-desc "o,O"
+    :default (:input-on-chars default-opts)
+    :default-desc (multiple-chars-formatter (:input-on-chars default-opts))
     :parse-fn multiple-chars-parser]
    [nil "--input-off-chars CHARS" "Characters denoting 'off', separated by commas"
-    :default [\-]
-    :default-desc "-"
+    :default (:input-off-chars default-opts)
+    :default-desc (multiple-chars-formatter (:input-off-chars default-opts))
     :parse-fn multiple-chars-parser]
    [nil "--input-lenient-parsing"
     "Be lenient when interpreting input files."]
@@ -63,7 +124,7 @@
    [nil "--max-results COUNT" "Maximum number of matches"
     :parse-fn #(Long/parseLong %)]
    [nil "--score-threshold PERCENT" "Minimum match score to include in results. Number from 0 to 100"
-    :default 70
+    :default (:score-threshold default-opts)
     :parse-fn #(Integer/parseInt %)
     :validate [#(<= 0 % 100) "Must be a number between 0 and 100"]]
 
@@ -82,13 +143,24 @@
    [nil "--save-matches FILE" "File with EDN-encoded matches"]
    [nil "--print-matches"]
 
+   ;; Colors
+   [nil "--invader-colors COLORS"
+    "Hex-encoded colors for invader bounding boxes."
+    :default (:invader-colors default-opts)
+    :default-desc (->> (:invader-colors default-opts)
+                       (map utils/rgb-to-hex)
+                       multiple-chars-formatter)
+    :parse-fn colors-parser
+    :validate [valid-colors?
+               "Colors must be hex-encoded values. Example: '#aabbcc,#001122'"]]
+
    ;; Emitting ascii output.
    [nil "--output-on-char CHAR"
     "For ascii output, character denoting 'on'."
-    :default \o
+    :default (:output-on-char default-opts)
     :parse-fn single-char-parser]
    [nil "--output-off-char CHAR" "For ascii output, character denoting 'off'."
-    :default \-
+    :default (:output-off-char default-opts)
     :parse-fn single-char-parser]
 
    ["-h" "--help"]])
