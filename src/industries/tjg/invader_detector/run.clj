@@ -21,23 +21,23 @@
 ;;; Sources, processes and sinks
 
 (defmulti source
-  "Gets input for later computations. Associates `kwd` to opts, with the input."
+  "Gets input. Updates `_opts` with the key specified by `kwd`; returns it."
   (fn [kwd _opts] kwd))
 
 (defmulti process
-  "Computes inputs. Associates `kwd` to opts, with the computation's results."
+  "Processes data. Updates `_opts` with the key specified by `kwd`; returns it."
   (fn [kwd _opts] kwd))
 
 (defmulti sink
-  "Stores data. Optionally associates `kwd` to opts, with any value."
+  "Stores data. Updates `_opts` with the key specified by `kwd`; returns it."
   (fn [kwd _opts] kwd))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Sources
 
 (defmethod source :invaders
-  [_ {:keys [invader-files] :as opts}]
-  (assoc opts :invaders
+  [kwd {:keys [invader-files] :as opts}]
+  (assoc opts kwd
          (->> invader-files
               (map #(parse-radar-sample % opts))
               (map-indexed (fn [id invader]
@@ -45,16 +45,16 @@
                               :pixel-matrix invader})))))
 
 (defmethod source :radar
-  ([_ {:keys [radar-sample-file] :as opts}]
-   (assoc opts :radar
+  ([kwd {:keys [radar-sample-file] :as opts}]
+   (assoc opts kwd
           (parse-radar-sample radar-sample-file opts))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Processors
 
 (defmethod process :matches
-  [_ {:keys [invaders radar score-threshold max-results] :as opts}]
-  (assoc opts :matches
+  [kwd {:keys [invaders radar score-threshold max-results] :as opts}]
+  (assoc opts kwd
          (cond->> invaders
            true        (mapcat
                         (fn [{:keys [invader-id pixel-matrix]}]
@@ -70,7 +70,7 @@
 ;;; Sinks
 
 (defmethod sink :output-ascii
-  [_ {:keys [radar matches output-ascii
+  [kwd {:keys [radar matches output-ascii
              output-ascii-on-char output-ascii-off-char
              output-ascii-opaque-fill]
       :as opts}]
@@ -84,10 +84,10 @@
     (-> (emit/draw-pixel-matrix radar draw-opts)
         (emit/draw-scoreboxes matches draw-opts)
         (emit/save-to-file! output-ascii {})))
-  opts)
+  (assoc opts kwd nil))
 
 (defmethod sink :print-ascii
-  [_ {:keys [radar matches
+  [kwd {:keys [radar matches
              output-ascii-on-char output-ascii-off-char
              output-ascii-opaque-fill]
       :as opts}]
@@ -101,10 +101,10 @@
     (-> (emit/draw-pixel-matrix radar draw-opts)
         (emit/draw-scoreboxes matches draw-opts)
         (emit/print! draw-opts)))
-  opts)
+  (assoc opts kwd nil))
 
 (defmethod sink :images
-  [_ {:keys [invaders radar matches
+  [kwd {:keys [invaders radar matches
              output-images invader-colors]
       :as opts}]
   (let [invader-color-table (->> [(->> invaders
@@ -124,24 +124,24 @@
                              last)]
         (image/save-to-file! img filename
                              {:image-format image-format})))
-    opts))
+    (assoc opts kwd nil)))
 
 (defmethod sink :save-matches
-  [_ {:keys [save-matches matches]
+  [kwd {:keys [save-matches matches]
       :as opts}]
   (let [edn (->> matches
                  (map #(select-keys % [:invader-id :bbox :score]))
                  utils/format-edn)]
     (spit save-matches edn))
-  opts)
+  (assoc opts kwd nil))
 
 (defmethod sink :print-matches
-  [_ {:keys [matches] :as opts}]
+  [kwd {:keys [matches] :as opts}]
   (->> matches
        (map #(select-keys % [:invader-id :bbox :score]))
        utils/format-edn
        print)
-  opts)
+  (assoc opts kwd nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public API
