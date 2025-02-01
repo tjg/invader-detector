@@ -69,8 +69,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Sinks
 
-(defmethod sink :output-ascii
-  [kwd {:keys [radar matches output-ascii
+(defmethod sink :save-ascii
+  [kwd {:keys [radar matches save-ascii
              output-ascii-on-char output-ascii-off-char
              output-ascii-opaque-fill]
       :as opts}]
@@ -83,7 +83,7 @@
                            {:transparent-fill? false}))]
     (-> (emit/draw-pixel-matrix radar draw-opts)
         (emit/draw-scoreboxes matches draw-opts)
-        (emit/save-to-file! output-ascii {})))
+        (emit/save-to-file! save-ascii {})))
   (assoc opts kwd nil))
 
 (defmethod sink :print-ascii
@@ -105,7 +105,7 @@
 
 (defmethod sink :images
   [kwd {:keys [invaders radar matches
-             output-images invader-colors]
+             save-images invader-colors]
       :as opts}]
   (let [invader-color-table (->> [(->> invaders
                                        (map :invader-id))
@@ -118,7 +118,7 @@
                                            :color (invader-color-table invader-id)))))
         img (-> (image/draw-pixel-matrix radar {})
                 (image/draw-scoreboxes colored-matches {}))]
-    (doseq [filename output-images]
+    (doseq [filename save-images]
       (let [image-format (-> filename
                              (str/split #"\.")
                              last)]
@@ -161,6 +161,6 @@
     true (process :matches)
     (get opts :save-matches)  (sink :save-matches)
     (get opts :print-matches) (sink :print-matches)
-    (get opts :output-ascii)  (sink :output-ascii)
+    (get opts :save-ascii)    (sink :save-ascii)
     (get opts :print-ascii)   (sink :print-ascii)
-    (get opts :output-images) (sink :images)))
+    (get opts :save-images)   (sink :images)))

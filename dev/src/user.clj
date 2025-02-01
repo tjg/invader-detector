@@ -33,12 +33,12 @@
 
 (defn- file-opts [temp-dir filename-prefix]
   (let [file-prefix (str temp-dir "/" filename-prefix)]
-    {:output-ascii (str file-prefix ".txt")
+    {:save-ascii (str file-prefix ".txt")
      :print-ascii true
      :save-matches (str file-prefix ".edn")
      :print-matches false
-     :output-images [(str file-prefix ".png")
-                     (str file-prefix ".jpeg")]}))
+     :save-images [(str file-prefix ".png")
+                   (str file-prefix ".jpeg")]}))
 
 (defonce ^:private temp-dirs (atom []))
 

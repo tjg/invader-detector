@@ -146,8 +146,8 @@
     :validate [#(<= 0 % 100) "Must be a number between 0 and 100"]]
 
    ;; Output.
-   [nil "--output-ascii FILE" "Output text file"]
-   [nil "--output-images FILES"
+   [nil "--save-ascii FILE" "Output text file"]
+   [nil "--save-images FILES"
     "Output image files, separated by colons."
     :parse-fn #(str/split % #":")
     :validate [#(malli/validate multiple-image-files-schema %)
@@ -213,7 +213,7 @@
         opt-keys (->> options keys set)
         input-switches (->> [:radar-sample-file :invader-files]
                             (map kwd-to-switch))
-        output-formats #{:output-ascii :output-images
+        output-formats #{:save-ascii :save-images
                          :save-matches :print-matches}
         output-format-switches (->> output-formats
                                     (map kwd-to-switch)
