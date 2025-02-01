@@ -14,15 +14,16 @@
 (defn- get-matches [invaders radar
                     {:keys [score-threshold max-results]}]
   (cond->> invaders
-    true (mapcat
-          (fn [invader]
-            (->> (match/matches invader radar)
-                 (map #(assoc % :color {:r 67 :g 0 :b 255})))))
-    true (sort-by :score)
+    true        (mapcat
+                 (fn [invader]
+                   (->> (match/matches invader radar)
+                        ;; FIXME: colors
+                        (map #(assoc % :color {:r 67 :g 0 :b 255})))))
+    true        (sort-by :score)
     max-results (take-last max-results)
-    true (filter (fn [{:keys [score]}]
-                   (>= score
-                       (/ score-threshold 100))))))
+    true        (filter (fn [{:keys [score]}]
+                          (>= score
+                              (/ score-threshold 100))))))
 
 (defn- draw-ascii! [radar matches {:keys [output-ascii
                                           output-on-char
