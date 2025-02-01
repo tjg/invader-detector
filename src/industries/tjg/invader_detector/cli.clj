@@ -7,6 +7,9 @@
    [industries.tjg.invader-detector.run :as run]
    [me.raynes.fs :as fs]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Utils
+
 (defn- validate-image-filepaths [image-paths]
   (->> image-paths
        (map fs/extension)
@@ -43,30 +46,28 @@
    [nil "--invader-files FILES" "Invader files separated by colons"
     :parse-fn #(str/split % #":")]
 
-   [nil "--max-results COUNT" "Maximum number of matches"
-    :parse-fn #(Long/parseLong %)]
-
+   ;; Parsing.
    [nil "--input-on-chars CHARS" "Characters denoting 'on', separated by commas"
     :default [\o \O]
     :default-desc "o,O"
     :parse-fn multiple-chars-parser]
    [nil "--input-off-chars CHARS" "Characters denoting 'off', separated by commas"
-    ;; FIXME: keep unparsed (but validated) for better err msgs? what
-    ;; if repeated commas?
     :default [\-]
     :default-desc "-"
     :parse-fn multiple-chars-parser]
-
    [nil "--input-lenient-parsing"
     "Be lenient when interpreting input files."]
 
-   ;; ["--algorithm ALGORITHM-NAME"]
 
+   ;; Matching.
+   [nil "--max-results COUNT" "Maximum number of matches"
+    :parse-fn #(Long/parseLong %)]
    [nil "--score-threshold PERCENT" "Minimum match score to include in results. Number from 0 to 100"
     :default 70
     :parse-fn #(Integer/parseInt %)
     :validate [#(<= 0 % 100) "Must be a number between 0 and 100"]]
 
+   ;; Output.
    [nil "--output-ascii FILE" "Output text file"]
    [nil "--output-images FILES"
     "Output image files, separated by colons."
@@ -78,10 +79,10 @@
                          set
                          sort
                          (str/join ", ")))]]
-
    [nil "--save-matches FILE" "File with EDN-encoded matches"]
    [nil "--print-matches"]
 
+   ;; Emitting ascii output.
    [nil "--output-on-char CHAR"
     "For ascii output, character denoting 'on'."
     :default \o
@@ -90,9 +91,7 @@
     :default \-
     :parse-fn single-char-parser]
 
-
    ["-h" "--help"]])
-
 
 (defn- usage [options-summary]
   (->> ["This is my program. There are many like it, but this one is mine."
@@ -153,6 +152,10 @@
 (defn- exit [status msg]
   (println msg)
   (System/exit status))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Program entrypoint
 
 (defn -main
   "Locate invaders in radar sample file. Program entry point."
