@@ -14,8 +14,8 @@
    :input-on-chars [\o \O]
    :input-off-chars [\-]
    :score-threshold 70
-   :output-on-char \o
-   :output-off-char \-})
+   :output-ascii-on-char \o
+   :output-ascii-off-char \-})
 
 (defn- kwd-to-switch [kwd]
   (->> kwd name (format "--%s")))
@@ -172,14 +172,14 @@
                "Colors must be hex-encoded values. Example: '#aabbcc,#001122'"]]
 
    ;; Emitting ascii output.
-   [nil "--output-on-char CHAR"
+   [nil "--output-ascii-on-char CHAR"
     "For ascii output, character denoting 'on'."
-    :default (:output-on-char default-opts)
+    :default (:output-ascii-on-char default-opts)
     :parse-fn single-char-parser]
-   [nil "--output-off-char CHAR" "For ascii output, character denoting 'off'."
-    :default (:output-off-char default-opts)
+   [nil "--output-ascii-off-char CHAR" "For ascii output, character denoting 'off'."
+    :default (:output-ascii-off-char default-opts)
     :parse-fn single-char-parser]
-   [nil "--output-opaque-fill"
+   [nil "--output-ascii-opaque-fill"
     "For ascii output, make bounding boxes blank inside."]
 
    ["-h" "--help"]])

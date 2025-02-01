@@ -21,9 +21,9 @@
 
    :invader-colors [{:r 67, :g 0, :b 255}
                     {:r 68, :g 242, :b 13}]
-   :output-on-char \o
-   :output-off-char \-
-   :output-opaque-fill true
+   :output-ascii-on-char \o
+   :output-ascii-off-char \-
+   :output-ascii-opaque-fill true
 
    :print-matches true})
 

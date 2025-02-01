@@ -71,14 +71,15 @@
 
 (defmethod sink :ascii
   [_ {:keys [radar matches output-ascii
-             output-on-char output-off-char output-opaque-fill]
+             output-ascii-on-char output-ascii-off-char
+             output-ascii-opaque-fill]
       :as opts}]
   (let [draw-opts (merge {:label-offset {:x 1, :y 0}}
-                         (when output-on-char
-                           {:char-true output-on-char})
-                         (when output-off-char
-                           {:char-false output-off-char})
-                         (when output-opaque-fill
+                         (when output-ascii-on-char
+                           {:char-true output-ascii-on-char})
+                         (when output-ascii-off-char
+                           {:char-false output-ascii-off-char})
+                         (when output-ascii-opaque-fill
                            {:transparent-fill? false}))]
     (-> (emit/draw-pixel-matrix radar draw-opts)
         (emit/draw-scoreboxes matches draw-opts)
