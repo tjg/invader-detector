@@ -29,11 +29,12 @@
 
     (-> (image/draw-pixel-matrix radar {})
         (image/draw-scoreboxes all-matches {})
-        (image/save-to-file! "resources/blah.png"))
+        (image/save-to-file! "resources/blah.jpg" {:image-format "jpg"})
+        (image/save-to-file! "resources/blah.png" {:image-format "png"}))
 
     (-> (emit/draw-pixel-matrix radar {:char-true \█ :char-false \space})
         (emit/draw-scoreboxes all-matches {:transparent-fill? true})
-        (emit/save-to-file! "resources/blah.txt"))
+        (emit/save-to-file! "resources/blah.txt" {}))
 
     (->> all-matches
          (map #(dissoc % :color)))))

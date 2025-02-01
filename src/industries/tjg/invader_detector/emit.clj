@@ -208,7 +208,7 @@ XXXXXXXXXX")
 
 (defn save-to-file!
   "Save ASCII to file."
-  [pixel-matrix output-file]
+  [pixel-matrix output-file _opts]
   (let [ascii-text (->> pixel-matrix
                         (map #(apply str %))
                         (str/join \newline))]
