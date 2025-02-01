@@ -6,6 +6,9 @@
    (java.nio.file Files)
    (java.nio.file.attribute FileAttribute)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Files
+
 (defonce ^:private temp-dirs (atom []))
 
 (defn- make-temp-dir
@@ -30,6 +33,9 @@
      :save-images [(str file-prefix ".png")
                    (str file-prefix ".jpeg")]}))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Config
+
 (def ^:private basic-opts
   {;; Source opts.
    :radar-sample-file "resources/spec-radar-sample.txt"
@@ -50,14 +56,19 @@
    :output-ascii-off-char \space
    :output-ascii-opaque-fill true})
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Run
+
 (defn locate-invaders!
   "Dev sandbox for locating invaders."
   []
   (let [filename-prefix "user"
-        temp-dir (make-temp-dir "invader-detector-user")
+        temp-dir (make-temp-dir "invader-detector-user-")
         _ (swap! temp-dirs conj temp-dir)
         opts (merge basic-opts (file-opts temp-dir filename-prefix))]
     (run/locate-invaders! opts)
     temp-dir))
 
 (locate-invaders!)
+(println)
+(println (first @temp-dirs))
