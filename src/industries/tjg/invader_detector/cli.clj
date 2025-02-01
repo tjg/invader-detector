@@ -162,6 +162,8 @@
    [nil "--output-off-char CHAR" "For ascii output, character denoting 'off'."
     :default (:output-off-char default-opts)
     :parse-fn single-char-parser]
+   [nil "--output-opaque-fill"
+    "For ascii output, make bounding boxes blank inside."]
 
    ["-h" "--help"]])
 

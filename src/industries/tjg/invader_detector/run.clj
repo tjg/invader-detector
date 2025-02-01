@@ -25,12 +25,15 @@
 
 (defn- draw-ascii! [radar matches {:keys [output-ascii
                                           output-on-char
-                                          output-off-char]}]
+                                          output-off-char
+                                          output-opaque-fill]}]
   (let [draw-opts (merge {:label-offset {:x 1, :y 0}}
                          (when output-on-char
                            {:char-true output-on-char})
                          (when output-off-char
-                           {:char-false output-off-char}))]
+                           {:char-false output-off-char})
+                         (when output-opaque-fill
+                           {:transparent-fill? false}))]
     (-> (emit/draw-pixel-matrix radar draw-opts)
         (emit/draw-scoreboxes matches draw-opts)
         (emit/save-to-file! output-ascii {}))))
