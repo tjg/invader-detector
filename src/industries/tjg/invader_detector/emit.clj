@@ -41,8 +41,8 @@
    (<= (+ x0 (:x label-offset))
        x
        (dec (+ x0
-               (count label)
-               (:x label-offset))))
+               (:x label-offset)
+               (count label))))
    ;; `y` is in the label's row.
    (or
     (= y
@@ -70,9 +70,8 @@
                                    (> height 1))]
     (cond
       ;; Is this a label? Print its character.
-      (and label-in-bbox-bounds?
-           (draw-label-char? label [x y] [x0 y0] [xN yN] label-offset))
-      (get label (dec (- x x0)))
+      (draw-label-char? label [x y] [x0 y0] [xN yN] label-offset)
+      (get label (- x x0 (:x label-offset)))
 
       ;; Corners.
       (= [x y] [x0 y0]) corner-x0-char
@@ -141,7 +140,7 @@
                        [\X \X \X \X \X \X \X \X \X \X]]
                       {:score 1/10 ;; Label will say `10%`.
                        :bbox {:x 2 :y 2 :width 6 :height 4}}
-                      {:label-offset {:x 1, :y 0} ;; Score label position.
+                      {:label-offset {:x 2, :y 0} ;; Score label position.
                        :transparent-fill? false   ;; Enable `:inner-bbox-char`.
                        :inner-bbox-char \space    ;; Blank spaces inside box.
                        })
@@ -152,7 +151,7 @@
   ;; =>
   "
 XXXXXXXXXX
-X╭10%───╮X
+X╭─10%──╮X
 X│      │X
 X│      │X
 X│      │X
