@@ -54,10 +54,16 @@
                     {:r 68, :g 242, :b 13}]
    :output-ascii-on-char \█
    :output-ascii-off-char \space
-   :output-ascii-opaque-fill true})
+   :output-ascii-opaque-fill true
+
+   ;; String sinks.
+   :string-matches true
+   :string-ascii true})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Run
+
+(defonce ^:private last-run (atom nil))
 
 (defn locate-invaders!
   "Dev sandbox for locating invaders."
@@ -66,7 +72,7 @@
         temp-dir (make-temp-dir "invader-detector-user-")
         _ (swap! temp-dirs conj temp-dir)
         opts (merge basic-opts (file-opts temp-dir filename-prefix))]
-    (run/locate-invaders! opts)
+    (reset! last-run (run/locate-invaders! opts))
     temp-dir))
 
 (locate-invaders!)

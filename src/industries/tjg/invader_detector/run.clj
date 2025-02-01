@@ -17,6 +17,25 @@
      {:pad-lines? true, :chars-false-by-default true}
      {})))
 
+(defn- draw-ascii [{:keys [radar matches
+                           output-ascii-on-char output-ascii-off-char
+                           output-ascii-opaque-fill]}]
+  (let [draw-opts (merge {:label-offset {:x 1, :y 0}}
+                         (when output-ascii-on-char
+                           {:char-true output-ascii-on-char})
+                         (when output-ascii-off-char
+                           {:char-false output-ascii-off-char})
+                         (when output-ascii-opaque-fill
+                           {:transparent-fill? false}))]
+    (-> (emit/draw-pixel-matrix radar draw-opts)
+        (emit/draw-scoreboxes matches draw-opts))))
+
+(defn- format-matches
+  [{:keys [matches]}]
+  (->> matches
+       (map #(select-keys % [:invader-id :bbox :score]))
+       utils/format-edn))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Sources, processes and sinks
 
@@ -70,38 +89,22 @@
 ;;; Sinks
 
 (defmethod sink :save-ascii-sink
-  [kwd {:keys [radar matches save-ascii
-             output-ascii-on-char output-ascii-off-char
-             output-ascii-opaque-fill]
-      :as opts}]
-  (let [draw-opts (merge {:label-offset {:x 1, :y 0}}
-                         (when output-ascii-on-char
-                           {:char-true output-ascii-on-char})
-                         (when output-ascii-off-char
-                           {:char-false output-ascii-off-char})
-                         (when output-ascii-opaque-fill
-                           {:transparent-fill? false}))]
-    (-> (emit/draw-pixel-matrix radar draw-opts)
-        (emit/draw-scoreboxes matches draw-opts)
-        (emit/save-to-file! save-ascii {})))
+  [kwd {:keys [save-ascii] :as opts}]
+  (-> opts
+      draw-ascii
+      (emit/save-to-file! save-ascii opts))
   (assoc opts kwd nil))
 
 (defmethod sink :print-ascii-sink
-  [kwd {:keys [radar matches
-             output-ascii-on-char output-ascii-off-char
-             output-ascii-opaque-fill]
-      :as opts}]
-  (let [draw-opts (merge {:label-offset {:x 1, :y 0}}
-                         (when output-ascii-on-char
-                           {:char-true output-ascii-on-char})
-                         (when output-ascii-off-char
-                           {:char-false output-ascii-off-char})
-                         (when output-ascii-opaque-fill
-                           {:transparent-fill? false}))]
-    (-> (emit/draw-pixel-matrix radar draw-opts)
-        (emit/draw-scoreboxes matches draw-opts)
-        (emit/print! draw-opts)))
+  [kwd opts]
+  (-> opts
+      draw-ascii
+      (emit/print! opts))
   (assoc opts kwd nil))
+
+(defmethod sink :string-ascii-sink
+  [kwd opts]
+  (assoc opts kwd (emit/to-string (draw-ascii opts))))
 
 (defmethod sink :save-images-sink
   [kwd {:keys [invaders radar matches
@@ -127,21 +130,19 @@
     (assoc opts kwd nil)))
 
 (defmethod sink :save-matches-sink
-  [kwd {:keys [save-matches matches]
-      :as opts}]
-  (let [edn (->> matches
-                 (map #(select-keys % [:invader-id :bbox :score]))
-                 utils/format-edn)]
-    (spit save-matches edn))
+  [kwd {:keys [save-matches] :as opts}]
+  (spit save-matches (format-matches opts))
   (assoc opts kwd nil))
 
 (defmethod sink :print-matches-sink
-  [kwd {:keys [matches] :as opts}]
-  (->> matches
-       (map #(select-keys % [:invader-id :bbox :score]))
-       utils/format-edn
-       print)
+  [kwd opts]
+  (print (format-matches opts))
   (assoc opts kwd nil))
+
+(defmethod sink :string-matches-sink
+  [kwd opts]
+  (assoc opts kwd
+         (format-matches opts)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public API
@@ -159,8 +160,10 @@
     true (source  :invaders)
     true (source  :radar)
     true (process :matches)
-    (get opts :save-matches)  (sink :save-matches-sink)
-    (get opts :print-matches) (sink :print-matches-sink)
-    (get opts :save-ascii)    (sink :save-ascii-sink)
-    (get opts :print-ascii)   (sink :print-ascii-sink)
-    (get opts :save-images)   (sink :save-images-sink)))
+    (get opts :save-matches)   (sink :save-matches-sink)
+    (get opts :print-matches)  (sink :print-matches-sink)
+    (get opts :string-matches) (sink :string-matches-sink)
+    (get opts :save-ascii)     (sink :save-ascii-sink)
+    (get opts :print-ascii)    (sink :print-ascii-sink)
+    (get opts :string-ascii)   (sink :string-ascii-sink)
+    (get opts :save-images)    (sink :save-images-sink)))

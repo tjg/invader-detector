@@ -200,18 +200,19 @@ XXXXXXXXXX")
     (with-meta char-pixel-matrix
       orig-meta)))
 
+(defn to-string
+  "ASCII."
+  [pixel-matrix]
+  (->> pixel-matrix
+       (map #(apply str %))
+       (str/join \newline)))
+
 (defn save-to-file!
   "Save ASCII to file."
   [pixel-matrix output-file _opts]
-  (let [ascii-text (->> pixel-matrix
-                        (map #(apply str %))
-                        (str/join \newline))]
-    (spit output-file ascii-text)))
+  (spit output-file (to-string pixel-matrix)))
 
 (defn print!
   "Print ASCII."
   [pixel-matrix _opts]
-  (let [ascii-text (->> pixel-matrix
-                        (map #(apply str %))
-                        (str/join \newline))]
-    (print ascii-text)))
+  (print (to-string pixel-matrix)))
