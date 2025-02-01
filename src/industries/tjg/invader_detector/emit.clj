@@ -207,3 +207,11 @@ XXXXXXXXXX")
                         (map #(apply str %))
                         (str/join \newline))]
     (spit output-file ascii-text)))
+
+(defn print!
+  "Print ASCII."
+  [pixel-matrix _opts]
+  (let [ascii-text (->> pixel-matrix
+                        (map #(apply str %))
+                        (str/join \newline))]
+    (print ascii-text)))

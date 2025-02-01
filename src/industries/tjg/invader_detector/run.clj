@@ -69,7 +69,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Sinks
 
-(defmethod sink :ascii
+(defmethod sink :output-ascii
   [_ {:keys [radar matches output-ascii
              output-ascii-on-char output-ascii-off-char
              output-ascii-opaque-fill]
@@ -84,6 +84,23 @@
     (-> (emit/draw-pixel-matrix radar draw-opts)
         (emit/draw-scoreboxes matches draw-opts)
         (emit/save-to-file! output-ascii {})))
+  opts)
+
+(defmethod sink :print-ascii
+  [_ {:keys [radar matches
+             output-ascii-on-char output-ascii-off-char
+             output-ascii-opaque-fill]
+      :as opts}]
+  (let [draw-opts (merge {:label-offset {:x 1, :y 0}}
+                         (when output-ascii-on-char
+                           {:char-true output-ascii-on-char})
+                         (when output-ascii-off-char
+                           {:char-false output-ascii-off-char})
+                         (when output-ascii-opaque-fill
+                           {:transparent-fill? false}))]
+    (-> (emit/draw-pixel-matrix radar draw-opts)
+        (emit/draw-scoreboxes matches draw-opts)
+        (emit/print! draw-opts)))
   opts)
 
 (defmethod sink :images
@@ -142,7 +159,8 @@
     true (source  :invaders)
     true (source  :radar)
     true (process :matches)
-    (get opts :output-ascii)  (sink :ascii)
+    (get opts :output-ascii)  (sink :output-ascii)
+    (get opts :print-ascii)   (sink :print-ascii)
     (get opts :output-images) (sink :images)
     (get opts :save-matches)  (sink :save-matches)
     (get opts :print-matches) (sink :print-matches)))

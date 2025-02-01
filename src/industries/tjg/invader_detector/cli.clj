@@ -157,8 +157,9 @@
                          set
                          sort
                          (str/join ", ")))]]
+   [nil "--print-ascii" "Print ascii to screen"]
    [nil "--save-matches FILE" "File with EDN-encoded matches"]
-   [nil "--print-matches"]
+   [nil "--print-matches" "Print matches to screen"]
 
    ;; Colors
    [nil "--invader-colors COLORS"
