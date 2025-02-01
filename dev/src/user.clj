@@ -35,16 +35,10 @@
         file-prefix (str temp-dir "/" filename-prefix)
         file-opts {:save-matches (str file-prefix ".edn")
                    :output-ascii (str file-prefix ".txt")
+                   :print-ascii true
+                   :print-matches true
                    :output-images [(str file-prefix ".png")
                                    (str file-prefix ".jpeg")]}
         opts (merge default-opts file-opts)]
-    (cond->> opts
-      true (run/source  :invaders)
-      true (run/source  :radar)
-      true (run/process :matches)
-      (get opts :output-ascii)  (run/sink :output-ascii)
-      (get opts :print-ascii)   (run/sink :print-ascii)
-      (get opts :output-images) (run/sink :images)
-      (get opts :save-matches)  (run/sink :save-matches)
-      (get opts :print-matches) (run/sink :print-matches))
+    (run/locate-invaders! opts)
     temp-dir))
