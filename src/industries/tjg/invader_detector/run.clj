@@ -41,7 +41,7 @@
   (let [img (-> (image/draw-pixel-matrix radar {})
                 (image/draw-scoreboxes matches {}))]
     (doseq [filename output-images]
-      (let [image-format (-> filename fs/extension str/lower-case)]
+      (let [image-format (-> filename fs/extension str/lower-case (subs 1))]
         (image/save-to-file! img filename
                              {:image-format image-format})))))
 
