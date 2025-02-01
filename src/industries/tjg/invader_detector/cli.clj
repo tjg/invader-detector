@@ -18,13 +18,20 @@
    :output-off-char \-})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Validators
+;;; Schemas
 
 (def ^:private color-schema
   [:map
    [:r [:int {:min 0 :max 255}]]
    [:g [:int {:min 0 :max 255}]]
    [:b [:int {:min 0 :max 255}]]])
+
+^:rct/test
+(comment
+  (malli/validate color-schema {:r 255 :g 0 :b 0}) ;; => true
+  (malli/validate color-schema {:r 256 :g 0 :b 0}) ;; => false
+  (malli/validate color-schema {:r 0 :g 0}) ;; => false
+)
 
 (def ^:private multiple-colors-schema
   [:sequential {:min 1} color-schema])
@@ -35,11 +42,11 @@
 (def ^:private multiple-hex-encoded-colors-schema
   [:sequential {:min 1} hex-encoded-color-schema])
 
-(defn- valid-colors? [colors]
-  (malli/validate multiple-colors-schema colors))
-
-(defn- valid-hex-encoded-colors? [colors]
-  (malli/validate multiple-hex-encoded-colors-schema colors))
+^:rct/test
+(comment
+  (malli/validate multiple-hex-encoded-colors-schema ["#aabbcc"]) ;; => true
+  (malli/validate multiple-hex-encoded-colors-schema []) ;; => false
+)
 
 (def ^:private image-file-schema
   [:and
@@ -56,15 +63,22 @@
 (def ^:private multiple-image-files-schema
   [:sequential {:min 1} image-file-schema])
 
-(defn- validate-image-filepaths [image-paths]
-  (malli/validate multiple-image-files-schema image-paths))
+^:rct/test
+(comment
+  (malli/validate multiple-image-files-schema ["a.png" "a.PnG"]) ;; => true
+  (malli/validate multiple-image-files-schema ["a.txt"]) ;; => false
+)
+
+(def ^:private single-char-schema
+  [:and string?
+   [:fn {:error/message "Must be a single character"}
+    #(= 1 (count %))]])
 
 ^:rct/test
 (comment
-  (validate-image-filepaths ["foo.png" "foo.PnG"])
-  ;; => true
-  (validate-image-filepaths ["foo.txt"])
-  ;; => false
+  (malli/validate single-char-schema ".")  ;; => true
+  (malli/validate single-char-schema "")   ;; => false
+  (malli/validate single-char-schema "12") ;; => false
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -87,16 +101,16 @@
          (map first))))
 
 (defn- single-char-parser [s]
-  (when-not (= 1 (count s))
-    (throw (ex-info "Must be a single char" {:char s})))
-  (first s))
+  (if (malli/validate single-char-schema s)
+    (first s)
+    (throw (ex-info "Must be a single char" {:char s}))))
 
 (defn- colors-parser [s]
   (let [strs (str/split s #",")]
-    (when-not (valid-hex-encoded-colors? strs)
-      (throw (ex-info "Invalid hex color(s)" {:colors strs})))
-    (->> strs
-         (map utils/hex-to-rgb))))
+    (if (malli/validate multiple-hex-encoded-colors-schema strs)
+      (->> strs
+           (map utils/hex-to-rgb))
+      (throw (ex-info "Invalid hex color(s)" {:colors strs})))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; CLI options
@@ -133,7 +147,7 @@
    [nil "--output-images FILES"
     "Output image files, separated by colons."
     :parse-fn #(str/split % #":")
-    :validate [validate-image-filepaths
+    :validate [#(malli/validate multiple-image-files-schema %)
                (str "Filename extension unknown. \nIt must be one of: "
                     (->> run/available-image-formats
                          (map str/lower-case)
@@ -151,7 +165,7 @@
                        (map utils/rgb-to-hex)
                        multiple-chars-formatter)
     :parse-fn colors-parser
-    :validate [valid-colors?
+    :validate [#(malli/validate multiple-colors-schema %)
                "Colors must be hex-encoded values. Example: '#aabbcc,#001122'"]]
 
    ;; Emitting ascii output.
