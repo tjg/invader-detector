@@ -63,6 +63,7 @@
    ;; ["--algorithm ALGORITHM-NAME"]
 
    [nil "--score-threshold PERCENT" "Minimum match score to include in results. Number from 0 to 100"
+    :default 70
     :parse-fn #(Integer/parseInt %)
     :validate [#(<= 0 % 100) "Must be a number between 0 and 100"]]
 
