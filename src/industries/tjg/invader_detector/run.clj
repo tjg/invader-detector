@@ -69,7 +69,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Sinks
 
-(defmethod sink :save-ascii
+(defmethod sink :save-ascii-sink
   [kwd {:keys [radar matches save-ascii
              output-ascii-on-char output-ascii-off-char
              output-ascii-opaque-fill]
@@ -86,7 +86,7 @@
         (emit/save-to-file! save-ascii {})))
   (assoc opts kwd nil))
 
-(defmethod sink :print-ascii
+(defmethod sink :print-ascii-sink
   [kwd {:keys [radar matches
              output-ascii-on-char output-ascii-off-char
              output-ascii-opaque-fill]
@@ -103,7 +103,7 @@
         (emit/print! draw-opts)))
   (assoc opts kwd nil))
 
-(defmethod sink :images
+(defmethod sink :save-images-sink
   [kwd {:keys [invaders radar matches
              save-images invader-colors]
       :as opts}]
@@ -126,7 +126,7 @@
                              {:image-format image-format})))
     (assoc opts kwd nil)))
 
-(defmethod sink :save-matches
+(defmethod sink :save-matches-sink
   [kwd {:keys [save-matches matches]
       :as opts}]
   (let [edn (->> matches
@@ -135,7 +135,7 @@
     (spit save-matches edn))
   (assoc opts kwd nil))
 
-(defmethod sink :print-matches
+(defmethod sink :print-matches-sink
   [kwd {:keys [matches] :as opts}]
   (->> matches
        (map #(select-keys % [:invader-id :bbox :score]))
@@ -159,8 +159,8 @@
     true (source  :invaders)
     true (source  :radar)
     true (process :matches)
-    (get opts :save-matches)  (sink :save-matches)
-    (get opts :print-matches) (sink :print-matches)
-    (get opts :save-ascii)    (sink :save-ascii)
-    (get opts :print-ascii)   (sink :print-ascii)
-    (get opts :save-images)   (sink :images)))
+    (get opts :save-matches)  (sink :save-matches-sink)
+    (get opts :print-matches) (sink :print-matches-sink)
+    (get opts :save-ascii)    (sink :save-ascii-sink)
+    (get opts :print-ascii)   (sink :print-ascii-sink)
+    (get opts :save-images)   (sink :save-images-sink)))
