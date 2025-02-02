@@ -189,7 +189,11 @@ XXXXXXXXXX")
 (defn draw-scoreboxes
   "Draw `scoreboxes` onto `pixel-matrix`. Returns updated `pixel-matrix`.
 
-  `opts` enables additional config. See `default-draw-opts`."
+  `opts` enables additional config. See `default-draw-opts`.
+
+  Note: `draw-pixel-matrix` adds metadata necessary to draw
+  transparent scoreboxes. So transparent scoreboxes may not work
+  properly if that metadata's missing."
   [pixel-matrix scoreboxes opts]
   (let [orig-meta (meta pixel-matrix)
         opts (merge orig-meta opts)

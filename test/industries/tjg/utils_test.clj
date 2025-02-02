@@ -1,4 +1,4 @@
-(ns industries.tjg.algorithms.utils-test
+(ns industries.tjg.utils-test
   {:clj-kondo/ignore [:refer :unresolved-symbol]}
   (:require
    [clojure.string :as str]

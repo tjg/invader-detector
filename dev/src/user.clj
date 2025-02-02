@@ -75,6 +75,7 @@
     (reset! last-run (run/locate-invaders! opts))
     temp-dir))
 
+(println)(println)
 (locate-invaders!)
 (println)
 (println (first @temp-dirs))
