@@ -219,4 +219,4 @@ XXXXXXXXXX")
 (defn print!
   "Print ASCII."
   [pixel-matrix _opts]
-  (print (to-string pixel-matrix)))
+  (println (to-string pixel-matrix)))

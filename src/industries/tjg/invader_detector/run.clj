@@ -136,7 +136,7 @@
 
 (defmethod sink :print-matches-sink
   [kwd opts]
-  (print (format-matches opts))
+  (println (format-matches opts))
   (assoc opts kwd nil))
 
 (defmethod sink :string-matches-sink

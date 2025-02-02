@@ -164,7 +164,7 @@
 
    ;; Colors
    [nil "--invader-colors COLORS"
-    "Hex-encoded colors for invader bounding boxes."
+    "Colors to highlight invaders. Recycled if fewer colors than invaders."
     :default (:invader-colors default-opts)
     :default-desc (->> (:invader-colors default-opts)
                        (map utils/rgb-to-hex)
@@ -214,7 +214,7 @@
         opt-keys (->> options keys set)
         input-switches (->> [:radar-sample-file :invader-files]
                             (map kwd-to-switch))
-        output-formats #{:save-ascii :save-images
+        output-formats #{:save-ascii :print-ascii :save-images
                          :save-matches :print-matches}
         output-format-switches (->> output-formats
                                     (map kwd-to-switch)
