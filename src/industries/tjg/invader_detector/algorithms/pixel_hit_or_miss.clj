@@ -5,9 +5,9 @@
   scoring the similarity. The simlarity score is pixels matched,
   divided by number of invader's pixels.
 
-  This is currently a O(invadersize X radarsize) algorithm. Some
-  possibilities if performance is needed: bit-vector comparisons,
-  pre-processing, and judicious parallelism."
+  This is currently a O(N²) algorithm. Some possibilities if
+  performance is needed: CPU cache-friendly datastructures, bit-vector
+  comparisons, pre-processing, and judicious parallelism."
   (:require
    [industries.tjg.invader-detector.utils :as utils]))
 
@@ -127,7 +127,9 @@
 (defn matches
   "Match `invader` to `radar-sample`.
 
-  Returns a sequence of similarity scores."
+  Returns a sequence of score-boxes, each of which looks like:
+  {:score 5/8
+   :bbox {:x -1, :y -1, :width 1, :height 1}}"
   [invader radar-sample]
   ;; Place `invader` at all positions in and around `radar-sample`,
   ;; as long as there's the slightest bit of overlap. Calculate the

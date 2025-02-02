@@ -9,4 +9,5 @@
            :warn-on-reflection                    {:level :off}
            :unused-value                          {:level :warning}
            :redundant-call                        {:level :warning}
-           :redundant-str-call                    {:level :warning}}}
+           :redundant-str-call                    {:level :warning}}
+ :lint-as {expectations.clojure.test/defexpect clojure.test/deftest}}
