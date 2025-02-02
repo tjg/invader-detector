@@ -62,7 +62,7 @@ If you prefer visuals, try `--save-images two-invaders.png`:
 
 ![Banner](doc/images/two-invaders.png)
 
-Shell-shocked veterans appreciate the `--output-ascii-opaque-fill`:
+Shell-shocked veterans who've seen too many invaders appreciate the `--output-ascii-opaque-fill`:
 
 ```
 ./detect-invaders.sh \
