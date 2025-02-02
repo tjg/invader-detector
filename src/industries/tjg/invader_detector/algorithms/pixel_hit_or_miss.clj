@@ -59,7 +59,7 @@
    :invader-pixel-count 4
    :matched-pixel-count 1} ;; 1 out of 4 pixels matched.
 
-  ;; Now let's move the invader 1 px up & left: that is, offset [-1,-1].
+  ;; Now let's move the invader 1px ↖ (up & left): that is, offset [-1,-1].
   ;; So the overlap will be a 1x1 square, not 2x2.
   (similarity-at-offset test-invader test-radar-sample {:offset [-1 -1]})
   ;; =>
@@ -68,7 +68,7 @@
    :invader-pixel-count 4  ;; 1 overlapped pixel + 3 outside the radar.
    :matched-pixel-count 1}
 
-  ;; Now let's move the invader 3px up & left, so definitely no overlap.
+  ;; Now let's move the invader 3px ↖ (up & left), so definitely no overlap.
   (similarity-at-offset test-invader test-radar-sample {:offset [-3 -3]})
   ;; =>
   {:overlap-dimensions {:width 0 :height 0} ;; No overlap.

@@ -94,7 +94,10 @@
 
 (defn rgb-to-hex
   "Formats {:keys [r g b]} map into hex-encoded color string."
-  [{:keys [r g b]}]
+  [{:keys [r g b] :as rgb}]
+  (doseq [x [r g b]]
+    (when-not (<= 0 x 255)
+      (throw (ex-info "Color outside bounds" {:color rgb, :component x}))))
   (format "#%02x%02x%02x" r g b))
 
 
@@ -104,8 +107,6 @@
   ;; =>
   "#1000ff"
 
-  (-> {:r 16 :g 0 :b 255}
-      rgb-to-hex
-      hex-to-rgb)
+  (-> {:r 16 :g 0 :b 255} rgb-to-hex hex-to-rgb)
   ;; =>
   {:r 16 :g 0 :b 255})  ;; Back to the original color.
