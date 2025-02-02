@@ -1,4 +1,13 @@
 (ns industries.tjg.invader-detector.algorithms.pixel-hit-or-miss
+  "Algorithm to find similarities between two pixel-matrices.
+
+  It positions the invader's image all around the radar sample, then
+  scoring the similarity. The simlarity score is pixels matched,
+  divided by number of invader's pixels.
+
+  This is currently a O(invadersize X radarsize) algorithm. Some
+  possibilities if performance is needed: bit-vector comparisons,
+  pre-processing, and judicious parallelism."
   (:require
    [industries.tjg.invader-detector.utils :as utils]))
 
@@ -55,17 +64,17 @@
   (similarity-at-offset test-invader test-radar-sample {:offset [-1 -1]})
   ;; =>
   {:overlap-dimensions {:width 1 :height 1}
-   :match-image [[1]]
+   :match-image [[1]]      ;; The overlapped pixel matched.
    :invader-pixel-count 4  ;; 1 overlapped pixel + 3 outside the radar.
-   :matched-pixel-count 1} ;; The overlapped pixel matched.
+   :matched-pixel-count 1}
 
   ;; Now let's move the invader 3px up & left, so definitely no overlap.
   (similarity-at-offset test-invader test-radar-sample {:offset [-3 -3]})
   ;; =>
   {:overlap-dimensions {:width 0 :height 0} ;; No overlap.
+   :match-image []         ;; No overlap.
    :invader-pixel-count 4  ;; All 4 invader's pixels are outside radar sample.
-   :matched-pixel-count 0  ;; No matches.
-   :match-image []}        ;; No overlap.
+   :matched-pixel-count 0}
 
   )
 
@@ -86,31 +95,29 @@
 ^:rct/test
 (comment
   (averaging-score
-   {:overlap-dimensions {:width 3 :height 3}
-    :invader-pixel-count 9
-    :matched-pixel-count 3
-    :match-image [[0 0 1]
-                  [0 1 0]
-                  [1 0 0]]})
+   {:overlap-dimensions {:width 2 :height 2}
+    :match-image [[0 0]     ;; 4 pixels overlap; only 1 matches.
+                  [0 1]]
+    :invader-pixel-count 4
+    :matched-pixel-count 1})
   ;; =>
-  3/9 ;; 3 pixels matched, out of 9 invader pixels.
+  1/4 ;; 1 pixels matched, out of 4 invader pixels.
 
   (averaging-score
-   {:overlap-dimensions {:width 2 :height 2}
-    :invader-pixel-count 9
-    :matched-pixel-count 4
-    :match-image [[1 1]
-                  [1 1]]})
+   {:overlap-dimensions {:width 1 :height 1}
+    :match-image [[1]]       ;; 1 overlaps (and matches): scored as 1 match.
+    :invader-pixel-count 4   ;; 3 don't overlap: each scored as 1/2 match.
+    :matched-pixel-count 1})
   ;; =>
-  13/18 ;; 4 matches + 5 half-scored hidden pixels, divided by 9.
+  5/8 ;; (1 + 1/2 + 1/2 + 1/2) / 4 = (2 + 1 + 1 + 1) / 8 = 5/8
 
   (averaging-score
    {:overlap-dimensions {:width 0 :height 0}
-    :invader-pixel-count 9
+    :invader-pixel-count 4
     :matched-pixel-count 0
     :match-image []})
   ;; =>
-  1/2 ;; All hidden pixels. Lacking further info, we score it 50%.
+  1/2 ;; All hidden pixels. Lacking further info, we score the whole thing 50%.
 
   )
 
