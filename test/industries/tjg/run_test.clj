@@ -96,3 +96,40 @@
                   :output-ascii-opaque-fill false}))
          :string-ascii-sink
          str/split-lines))))
+
+(defexpect ragged-inputs
+  (expecting "a string of some sort, but no guarantees"
+    (expect string?
+            (-> (sut/locate-invaders!
+                 (merge opts
+                        {:invader-files ["resources/spec-invader-1-glitchy.txt"
+                                         "resources/spec-invader-2.txt"]
+                         :radar-sample-file
+                         "resources/spec-radar-sample-2-guys-glitchy.txt"
+                         :output-ascii-opaque-fill false
+                         :input-lenient-parsing true}))
+                ;; Just use the string, without splitting lines for readability.
+                :string-ascii-sink)))
+
+  (expecting "unknown chars parsed into 0's, and ragged lines padded with 0's"
+   (expect
+    ["   ╭84%─────╮      █ ╭85%───────────"
+     " ██│   ██   │ █  █ █ │  █     █  █  "
+     " █ │  ████  │   ██   │       █      "
+     "   │████████│  █     │  ████ ██  █  "
+     "   │██ ██  █│ █  █   │    ███ ██    "
+     "   │ ███████│        │█  █████      "
+     "   │  █  ███│  █    █│█ █ █████ █   "
+     "   │ █ ██   │     █ █│█ █     █ █   "
+     "   │██  ██ █│     █  │   ██ ██      "
+     "   ╰────────╯      █ ╰──────────────"
+     "   █    █      █     ╰────────╯──╯  "]
+    (-> (sut/locate-invaders!
+         (merge opts
+                {:invader-files ["resources/spec-invader-1-glitchy.txt"
+                                 "resources/spec-invader-2.txt"]
+                 :radar-sample-file "resources/spec-radar-sample-2-guys-glitchy.txt"
+                 :output-ascii-opaque-fill false
+                 :input-lenient-parsing true}))
+        :string-ascii-sink
+        str/split-lines))))
