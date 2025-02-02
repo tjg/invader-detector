@@ -1,2 +1,2 @@
 #!/bin/sh
-clojure -M -m industries.tjg.invader-detector.cli "$@"
+clojure -M:run-m "$@"
