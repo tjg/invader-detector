@@ -1,4 +1,4 @@
-# industries.tjg/invader-detector
+# Invader Detector
 
 <img src="./doc/images/invaders-sneak-peek.png" alt="Two invaders eyeing each other">
 
@@ -27,8 +27,9 @@ o--│--o--ooo│--o----o│o-o-ooooo-o│-
 ---o----o------o-----╰────────╯──╯-
 ```
 
-Let's make that image a bit clearer with
-`--output-ascii-on-char "█" --output-ascii-off-char " "`:
+Let's clarify that image with
+`--output-ascii-on-char "█"` and
+`--output-ascii-off-char " "`:
 
 ```
 ./detect-invaders.sh \
@@ -85,7 +86,8 @@ Shell-shocked veterans appreciate the `--output-ascii-opaque-fill`:
    █    █      █     ╰────────╯──╯ 
 ```
 
-The default match score is 70%. You suddenly see more with `--score-threshold 60`:
+The default match score is 70%. The radar gets crowded with
+`--score-threshold 60`:
 
 ```
 ./detect-invaders.sh \
@@ -96,6 +98,7 @@ The default match score is 70%. You suddenly see more with `--score-threshold 60
 --output-ascii-off-char " " \
 --output-ascii-opaque-fill \
 --score-threshold 60
+
 │6╭╭84%─────╮─╮─╮╮ █ ╭91%────────╮─
 │ ││        │ │ ││ █ │           │ 
 │ ││        │ │ ││   │           │ 
