@@ -34,6 +34,10 @@
   [{:keys [matches]}]
   (->> matches
        (map #(select-keys % [:invader-id :bbox :score]))
+       (sort-by :score)
+       reverse
+       (map (fn [scorebox]
+              (update scorebox :score #(* 100.0 %))))
        utils/format-edn))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

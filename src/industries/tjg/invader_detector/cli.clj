@@ -147,6 +147,7 @@
     :validate [#(<= 0 % 100) "Must be a number between 0 and 100"]]
 
    ;; Output.
+   [nil "--print-ascii" "Print ascii to screen"]
    [nil "--save-ascii FILE" "Output text file"]
    [nil "--save-images FILES"
     "Output image files, separated by colons."
@@ -158,9 +159,8 @@
                          set
                          sort
                          (str/join ", ")))]]
-   [nil "--print-ascii" "Print ascii to screen"]
-   [nil "--save-matches FILE" "File with EDN-encoded matches"]
    [nil "--print-matches" "Print matches to screen"]
+   [nil "--save-matches FILE" "File with EDN-encoded matches"]
 
    ;; Colors
    [nil "--invader-colors COLORS"
