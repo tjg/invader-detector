@@ -29,45 +29,41 @@
 
 ^:rct/test
 (comment
-  ;; Invader: a square of 1's on the lower right.
+  ;; Invader: a 1 on the lower right.
   (def ^:private test-invader
-    [[0 0 0]
-     [0 1 1]
-     [0 1 1]])
+    [[0 0]
+     [0 1]])
 
   ;; Radar sample: a square of 1's on the upper right.
   (def ^:private test-radar-sample
-    [[1 1 0 0]
-     [1 1 0 0]
-     [0 0 0 0]
-     [0 0 0 0]])
+    [[1 1 0]
+     [1 1 0]
+     [0 0 0]])
 
   ;; No offset. So both pixel-matrices are compared starting at the
   ;; upper-left corner. The invader overlaps fully on the radar.
   (similarity-at-offset test-invader test-radar-sample {:offset [0 0]})
   ;; =>
-  {:overlap-dimensions {:width 3 :height 3} ;; 3x3 square, same as invader.
-   :invader-pixel-count 9
-   :matched-pixel-count 3  ;; 3 out of 9 pixels matched.
-   :match-image [[0 0 1]   ;; Diagonal-shaped match.
-                 [0 1 0]
-                 [1 0 0]]}
+  {:overlap-dimensions {:width 2 :height 2} ;; 2x2 square, same as invader.
+   :match-image [[0 0]     ;; Only lower right pixel matched.
+                 [0 1]]
+   :invader-pixel-count 4
+   :matched-pixel-count 1} ;; 1 out of 4 pixels matched.
 
-  ;; Now let's move the invader 1 px up & left: aka offset [-1,-1].
-  ;; So the overlap will be a 2x2 square, not 3x3.
+  ;; Now let's move the invader 1 px up & left: that is, offset [-1,-1].
+  ;; So the overlap will be a 1x1 square, not 2x2.
   (similarity-at-offset test-invader test-radar-sample {:offset [-1 -1]})
   ;; =>
-  {:overlap-dimensions {:width 2 :height 2} ;; 2x2 square.
-   :invader-pixel-count 9  ;; 4 overlapped pixels + 5 not overlapped.
-   :matched-pixel-count 4  ;; All four overlapped pixels matched.
-   :match-image [[1 1]
-                 [1 1]]}
+  {:overlap-dimensions {:width 1 :height 1}
+   :match-image [[1]]
+   :invader-pixel-count 4  ;; 1 overlapped pixel + 3 outside the radar.
+   :matched-pixel-count 1} ;; The overlapped pixel matched.
 
-  ;; Now let's move the invader 4px up & left, so there's no overlap.
-  (similarity-at-offset test-invader test-radar-sample {:offset [-4 -4]})
+  ;; Now let's move the invader 3px up & left, so definitely no overlap.
+  (similarity-at-offset test-invader test-radar-sample {:offset [-3 -3]})
   ;; =>
-  {:overlap-dimensions {:width 0 :height 0} ;; No width nor height.
-   :invader-pixel-count 9  ;; All 9 invader pixels are outside radar sample.
+  {:overlap-dimensions {:width 0 :height 0} ;; No overlap.
+   :invader-pixel-count 4  ;; All 4 invader's pixels are outside radar sample.
    :matched-pixel-count 0  ;; No matches.
    :match-image []}        ;; No overlap.
 
