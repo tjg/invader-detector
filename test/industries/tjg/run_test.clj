@@ -54,7 +54,8 @@
       "     █     █       █ ██    │██  ██ █│   ██          ╰────────╯──╯ "
       "   █  ███ █         █ █    ╰────────╯   █         █    █  █       "
       "   █      █                █    █      █      █   ██           █  "]
-     (-> (sut/locate-invaders! (merge opts {:output-ascii-opaque-fill false}))
+     (-> (sut/locate-invaders! (merge opts {:output-ascii-opaque-fill false
+                                            :string-ascii true}))
          :string-ascii-sink
          str/split-lines)))
 
@@ -74,6 +75,7 @@
      (-> (sut/locate-invaders!
           (merge opts
                  {:radar-sample-file "resources/spec-radar-sample-2-guys.txt"
+                  :string-ascii true
                   :output-ascii-opaque-fill true}))
          :string-ascii-sink
          str/split-lines))
@@ -93,6 +95,7 @@
      (-> (sut/locate-invaders!
           (merge opts
                  {:radar-sample-file "resources/spec-radar-sample-2-guys.txt"
+                  :string-ascii true
                   :output-ascii-opaque-fill false}))
          :string-ascii-sink
          str/split-lines))))
@@ -106,6 +109,7 @@
                                          "resources/spec-invader-2.txt"]
                          :radar-sample-file
                          "resources/spec-radar-sample-2-guys-glitchy.txt"
+                         :string-ascii true
                          :output-ascii-opaque-fill false
                          :input-lenient-parsing true}))
                 ;; Just use the string, without splitting lines for readability.
@@ -129,7 +133,45 @@
                 {:invader-files ["resources/spec-invader-1-glitchy.txt"
                                  "resources/spec-invader-2.txt"]
                  :radar-sample-file "resources/spec-radar-sample-2-guys-glitchy.txt"
+                 :string-ascii true
                  :output-ascii-opaque-fill false
                  :input-lenient-parsing true}))
         :string-ascii-sink
         str/split-lines))))
+
+(defexpect matches-available
+  (let [results
+        (sut/locate-invaders!
+         (merge opts {:radar-sample-file
+                      "resources/spec-radar-sample-2-guys.txt"
+                      :string-ascii true}))]
+    (expecting "four matches"
+      (expect #{{:bbox {:x 4, :y 1, :width 8, :height 8},
+                 :score 27/32,
+                 :invader-id 1}
+                {:bbox {:x 22, :y 1, :width 11, :height 8},
+                 :score 10/11,
+                 :invader-id 0}
+                {:bbox {:x 22, :y 2, :width 8, :height 8},
+                 :score 23/32,
+                 :invader-id 1}
+                {:bbox {:x 25, :y 2, :width 8, :height 8},
+                 :score 45/64,
+                 :invader-id 1}}
+              (-> (:matches results)
+                  set))
+
+      (expect ["   ╭84%─────╮      █ ╭91%────────╮ "
+               " ██│   ██   │ █  █ █ │  █     █  │ "
+               " █ │  ████  │   ██   │       █   │ "
+               "   │████████│  █     │  ████ ██  │ "
+               "   │██ ██  █│ █  █   │    ███ ██ │ "
+               "█  │ ███████│        │█  ██████ █│ "
+               "█  │  █  ███│  █    █│█ █ █████ █│ "
+               "   │ █ ██   │     █ █│█ █     █ █│ "
+               "   │██  ██ █│     █  │   ██ ██   │ "
+               "   ╰────────╯      █ ╰───────────╯ "
+               "   █    █      █     ╰────────╯──╯ "]
+              (-> results
+                  :string-ascii-sink
+                  str/split-lines)))))
