@@ -134,7 +134,8 @@
     :default-desc (multiple-chars-formatter (:input-off-chars default-opts))
     :parse-fn multiple-chars-parser]
    [nil "--input-lenient-parsing"
-    "Be lenient when interpreting input files."]
+    "Be lenient when interpreting input files."
+    :default true]
 
 
    ;; Matching.

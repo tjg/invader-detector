@@ -14,7 +14,7 @@
   (parse/parse-radar-sample-from-file
    file
    (if input-lenient-parsing
-     {:pad-lines? true, :chars-false-by-default true}
+     {:pad-lines? true, :chars-false-by-default? true}
      {})))
 
 (defn- draw-ascii [{:keys [radar matches
