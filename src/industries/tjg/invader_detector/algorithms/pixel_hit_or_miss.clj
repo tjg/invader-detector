@@ -96,16 +96,16 @@
 (comment
   (averaging-score
    {:overlap-dimensions {:width 2 :height 2}
-    :match-image [[0 0]     ;; 4 pixels overlap; only 1 matches.
+    :match-image [[0 0]     ;; 4 pixels overlap; only 1 match.
                   [0 1]]
     :invader-pixel-count 4
     :matched-pixel-count 1})
   ;; =>
-  1/4 ;; 1 pixels matched, out of 4 invader pixels.
+  1/4 ;; 1 pixel matched, out of 4 invader pixels.
 
   (averaging-score
    {:overlap-dimensions {:width 1 :height 1}
-    :match-image [[1]]       ;; 1 overlaps (and matches): scored as 1 match.
+    :match-image [[1]]       ;; 1 overlap (and match): scored as 1 match.
     :invader-pixel-count 4   ;; 3 don't overlap: each scored as 1/2 match.
     :matched-pixel-count 1})
   ;; =>

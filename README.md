@@ -134,7 +134,7 @@ precise data:
  ...
 ```
 
-Let's try a bigger radar sample.
+Let's try a bigger radar sample:
 
 ```
 ./detect-invaders.sh \
@@ -196,7 +196,7 @@ which coordinates the sources/processors/sinks pipeline:
 
 ![Source/processor/sink diagram](doc/images/invader-detector-IO.png)
 
-`pixel-matrix` is a 2D vector representing a radar sample or pattern.
+`pixel-matrix` is a 2D vector representing a radar sample or pattern:
 
 ```clojure
 [[0 0 0 1 1 0 0 0]
@@ -211,7 +211,7 @@ which coordinates the sources/processors/sinks pipeline:
 
 `scorebox` is a map representing a bounding box in the radar sample,
 with a score that estimates the likelihood that an invader's in the
-bounding box.
+bounding box:
 
 ```clojure
 {:score 5/8
@@ -223,8 +223,7 @@ bounding box.
 `clj -X:test` runs tests.
 
 Two testing frameworks:
-- Rich Comment Tests: A kind of literate programming that helps
-  explain the code.
+- Rich Comment Tests: Helps illustrate sourcecode.
 - Expectations: More expressive than `clojure.test`, but compatible
   with its tooling.
 
