@@ -90,3 +90,18 @@
   (expect Exception (sut/rgb-to-hex {:r 0 :g 256 :b 0}))
   (expect Exception (sut/rgb-to-hex {:r 0 :g -1 :b 0}))
   (expect Exception (sut/rgb-to-hex {:r 0})))
+
+(defexpect file-existence
+  (expect identity
+          (sut/file-exists? "deps.edn"))
+  (expect identity
+          (sut/file-exists? "resources/spec-invader-1.txt"))
+  (expect not
+          (sut/file-exists? "resources/spec-invader-129382938.txt"))
+
+  (expect identity
+          (sut/directory-exists? "deps.edn"))
+  (expect identity
+          (sut/directory-exists? "resources/spec-invader-1.txt"))
+  (expect not
+          (sut/directory-exists? "this_should_not_exist/spec-invader-1.txt")))

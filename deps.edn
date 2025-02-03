@@ -19,6 +19,8 @@
                      criterium/criterium {:mvn/version "0.4.6"}}}
 
   :test {:extra-paths ["test"]
+         :main-opts ["-m" "cognitect.test-runner"]
+         :exec-fn cognitect.test-runner.api/test
          :jvm-opts ["-Djava.awt.headless=true"]
          :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}
 

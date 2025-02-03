@@ -55,8 +55,11 @@
   [:and
    string?
    [:fn
-    {:error/message
-     "File's extension doesn't correspond to supported image formats."}
+    {:error/message "File's directory doesn't exist."}
+    (fn [s]
+      (utils/directory-exists? s))]
+   [:fn
+    {:error/message "File's extension isn't a supported image format."}
     (fn [s]
       (->> run/available-image-formats
            (some (fn [image-fmt]
@@ -65,12 +68,6 @@
 
 (def ^:private multiple-image-files-schema
   [:sequential {:min 1} image-file-schema])
-
-^:rct/test
-(comment
-  (malli/validate multiple-image-files-schema ["a.png" "a.PnG"]) ;; => true
-  (malli/validate multiple-image-files-schema ["a.txt"]) ;; => false
-)
 
 (def ^:private single-char-schema
   [:and string?
@@ -120,9 +117,11 @@
 
 (def ^:private cli-options
   "Commandline opts."
-  [[nil "--radar-sample-file FILE" "Radar sample file"]
+  [[nil "--radar-sample-file FILE" "Radar sample file"
+    :validate [utils/file-exists? "Image file must exist"]]
    [nil "--invader-files FILES" "Invader files separated by colons"
-    :parse-fn #(str/split % #":")]
+    :parse-fn #(str/split % #":")
+    :validate [#(every? utils/file-exists? %) "Image files must exist"]]
 
    ;; Parsing.
    [nil "--input-on-chars CHARS" "Characters denoting 'on', separated by commas"
@@ -148,19 +147,21 @@
 
    ;; Output.
    [nil "--print-ascii" "Print ascii to screen"]
-   [nil "--save-ascii FILE" "Output text file"]
+   [nil "--save-ascii FILE" "Output text file"
+    :validate [utils/directory-exists? "Image directory must exist"]]
    [nil "--save-images FILES"
     "Output image files, separated by colons."
     :parse-fn #(str/split % #":")
     :validate [#(malli/validate multiple-image-files-schema %)
-               (str "Filename extension unknown. \nIt must be one of: "
+               (str "Directory doesn't exist, or filename extension unknown. \nExtension must be one of: "
                     (->> run/available-image-formats
                          (map str/lower-case)
                          set
                          sort
                          (str/join ", ")))]]
    [nil "--print-matches" "Print matches to screen"]
-   [nil "--save-matches FILE" "File with EDN-encoded matches"]
+   [nil "--save-matches FILE" "File with EDN-encoded matches"
+    :validate [utils/directory-exists? "Matches directory must exist"]]
 
    ;; Colors
    [nil "--invader-colors COLORS"

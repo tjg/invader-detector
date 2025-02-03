@@ -1,5 +1,6 @@
 (ns industries.tjg.invader-detector.utils
   (:require
+   [clojure.java.io :as io]
    [clojure.pprint :as pprint]))
 
 (defn round
@@ -110,3 +111,18 @@
   (-> {:r 16 :g 0 :b 255} rgb-to-hex hex-to-rgb)
   ;; =>
   {:r 16 :g 0 :b 255})  ;; Back to the original color.
+
+
+(defn file-exists?
+  "Test if file exists."
+  [pathname]
+  (.exists (io/file pathname)))
+
+(defn directory-exists?
+  "Test if the directory of `pathname` exists."
+  [pathname]
+  (let [dir (or (io/file (.getParent (io/file pathname)))
+                (io/file "."))]
+    (and dir
+         (.exists dir)
+         (.isDirectory dir))))
