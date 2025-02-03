@@ -136,9 +136,6 @@ precise data:
 
 Let's try a bigger radar sample.
 
-(Incidentally, setting `--score-threshold` to a higher threshold
-results in fewer matches.  It's `70` by default.)
-
 ```
 ./detect-invaders.sh \
   --radar-sample-file resources/spec-radar-sample.txt \
