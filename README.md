@@ -118,19 +118,22 @@ precise data:
 
 ```sh
 ./detect-invaders.sh \
-  --radar-sample-file resources/spec-radar-sample.txt \
+  --radar-sample-file resources/spec-radar-sample-2-guys.txt \
   --invader-files resources/spec-invader-1.txt:resources/spec-invader-2.txt \
   --print-matches
 
 ({:invader-id 0,
-  :bbox {:x 60, :y 13, :width 11, :height 8},
+  :bbox {:x 22, :y 1, :width 11, :height 8},
   :score 90.9090909090909}
  {:invader-id 1,
-  :bbox {:x 42, :y 0, :width 8, :height 8},
-  :score 87.5}
- {:invader-id 0,
-  :bbox {:x 74, :y 1, :width 11, :height 8},
-  :score 87.5}
+  :bbox {:x 4, :y 1, :width 8, :height 8},
+  :score 84.375}
+ {:invader-id 1,
+  :bbox {:x 22, :y 2, :width 8, :height 8},
+  :score 71.875}
+ {:invader-id 1,
+  :bbox {:x 25, :y 2, :width 8, :height 8},
+  :score 70.3125})
  ...
 ```
 
