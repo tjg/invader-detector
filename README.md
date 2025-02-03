@@ -7,9 +7,6 @@
 
 If you're using this program, sadly you know we have no time to waste.
 
-<img src="./doc/images/spec-locations-threshold-70.png" 
-     alt="Invader locations with 70% score-threshold" width="400"/>
-
 ```sh
 cd /path/to/invader-detector
 
@@ -146,6 +143,22 @@ precise data:
  ...
 ```
 
+To locate all invaders from the spec's sample radar:
+
+```
+./detect-invaders.sh \
+  --radar-sample-file resources/spec-radar-sample.txt \
+  --invader-files resources/spec-invader-1.txt:resources/spec-invader-2.txt \
+  --save-images spec-locations-threshold-70.png
+
+# You can try setting --score-threshold to a different percentage.
+# It's `70` by default.
+```
+
+<img src="./doc/images/spec-locations-threshold-70.png"
+     alt="Invader locations with 70% score-threshold" width="400"/>
+
+
 ## Usage
 
 There's quite a few options. Also, you can use multiple output
@@ -184,13 +197,13 @@ Options:
 ### Where to start?
 
 One place is
-[user.clj](https://github.com/tjg/invader-detector/blob/81274a35c10aea3dffa1ccb21d41685b5bf401f1/dev/src/user.clj#L34),
+[user.clj](https://github.com/tjg/invader-detector/blob/c6126b53561284ec4b5a710cebd25e32f60cfda1/dev/src/user.clj#L34),
 a developer sandbox that's likely convenient than the CLI. Simply
 evaluating the whole buffer will print results in the REPL, as well as
 save images & matches to a temp dir.
 
 It calls
-[run.clj](https://github.com/tjg/invader-detector/blob/81274a35c10aea3dffa1ccb21d41685b5bf401f1/src/industries/tjg/invader_detector/run.clj#L152),
+[run.clj](https://github.com/tjg/invader-detector/blob/c6126b53561284ec4b5a710cebd25e32f60cfda1/src/industries/tjg/invader_detector/run.clj#L154),
 which coordinates this app's sources/processors/sinks pipeline:
 
 ![Source/processor/sink diagram](doc/images/invader-detector-IO.png)
