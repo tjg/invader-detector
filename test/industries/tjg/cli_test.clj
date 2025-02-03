@@ -17,12 +17,17 @@
 (defn- teardown []
   (fs/delete-dir @test-dir))
 
-(use-fixtures :once (fn [f]
-                      (setup)
-                      (try
-                        (f)
-                        (finally
-                          (teardown)))))
+(defn- silent-fixture [f]
+  (let [null-writer (java.io.StringWriter.)]
+    (binding [*out* null-writer
+              *err* null-writer]
+      (setup)
+      (try
+        (f)
+        (finally
+          (teardown))))))
+
+(use-fixtures :once silent-fixture)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tests
