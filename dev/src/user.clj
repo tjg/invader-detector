@@ -27,9 +27,7 @@
   (let [file-prefix (str temp-dir "/" filename-prefix)]
 
     {:save-ascii (str file-prefix ".txt")
-     :print-ascii true
      :save-matches (str file-prefix ".edn")
-     :print-matches true
      :save-images [(str file-prefix ".png")
                    (str file-prefix ".jpeg")]}))
 
@@ -37,7 +35,7 @@
 ;;; Config
 
 (def ^:private basic-opts
-  {;; Source opts.
+  { ;; Source opts.
    :radar-sample-file "resources/spec-radar-sample.txt"
    :invader-files ["resources/spec-invader-1.txt"
                    "resources/spec-invader-2.txt"]
@@ -48,6 +46,10 @@
    ;; Processor opts.
    :max-results nil
    :score-threshold 70
+
+   ;; Non-file sinks.
+   :print-ascii true
+   :print-matches true
 
    ;; Sink opts.
    :invader-colors [{:r 67, :g 0, :b 255}
