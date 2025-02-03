@@ -11,12 +11,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Utils
 
-(defn- parse-radar-sample [file {:keys [input-lenient-parsing]}]
-  (parse/parse-radar-sample-from-file
-   file
-   (if input-lenient-parsing
-     {:pad-lines? true, :chars-false-by-default? true}
-     {})))
+(defn- parse-radar-sample [file {:keys [input-lenient-parsing
+                                        input-on-chars
+                                        input-off-chars]}]
+  (let [opts (merge {:chars-true input-on-chars
+                     :chars-false input-off-chars}
+                    (when input-lenient-parsing
+                      {:pad-lines? true, :chars-false-by-default? true}))]
+    (parse/parse-radar-sample-from-file file opts)))
 
 (defn- draw-ascii [{:keys [radar matches
                            output-ascii-on-char output-ascii-off-char
