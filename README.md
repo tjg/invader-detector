@@ -131,15 +131,6 @@ precise data:
  {:invader-id 0,
   :bbox {:x 74, :y 1, :width 11, :height 8},
   :score 87.5}
- {:invader-id 0,
-  :bbox {:x 85, :y 12, :width 11, :height 8},
-  :score 86.36363636363636}
- {:invader-id 1,
-  :bbox {:x 82, :y 41, :width 8, :height 8},
-  :score 85.9375}
- {:invader-id 1,
-  :bbox {:x 16, :y 28, :width 8, :height 8},
-  :score 85.9375}
  ...
 ```
 
