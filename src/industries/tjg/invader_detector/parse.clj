@@ -1,4 +1,5 @@
 (ns industries.tjg.invader-detector.parse
+  "Read in ASCII."
   (:require
    [clojure.string :as str]))
 

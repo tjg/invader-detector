@@ -1,4 +1,5 @@
 (ns industries.tjg.invader-detector.run
+  "Run entire pipeline of sources, processors and sinks."
   (:require
    [clojure.string :as str]
    [industries.tjg.invader-detector.algorithms.pixel-hit-or-miss :as match]

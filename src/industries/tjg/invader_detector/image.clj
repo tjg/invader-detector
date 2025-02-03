@@ -1,4 +1,5 @@
 (ns industries.tjg.invader-detector.image
+  "Output images."
   (:require
    [industries.tjg.invader-detector.utils :as utils])
   (:import
