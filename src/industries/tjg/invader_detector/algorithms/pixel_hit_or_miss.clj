@@ -129,7 +129,7 @@
 
   Returns a sequence of score-boxes, each of which looks like:
   {:score 5/8
-   :bbox {:x -1, :y -1, :width 1, :height 1}}"
+   :bbox {:x -1, :y -1, :width 6, :height 8}}"
   [invader radar-sample]
   ;; Place `invader` at all positions in and around `radar-sample`,
   ;; as long as there's the slightest bit of overlap. Calculate the
