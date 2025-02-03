@@ -1,4 +1,4 @@
-(ns industries.tjg.algorithms.pixel-hit-or-miss-test
+(ns industries.tjg.invader-detector.algorithms.pixel-hit-or-miss-test
   {:clj-kondo/ignore [:refer :unresolved-symbol]}
   (:require
    [clojure.data :as data]

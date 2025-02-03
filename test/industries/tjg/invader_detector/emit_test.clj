@@ -1,4 +1,4 @@
-(ns industries.tjg.emit-test
+(ns industries.tjg.invader-detector.emit-test
   {:clj-kondo/ignore [:refer :unresolved-symbol]}
   (:require
    [expectations.clojure.test
