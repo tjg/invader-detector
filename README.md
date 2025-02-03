@@ -134,7 +134,6 @@ precise data:
  {:invader-id 1,
   :bbox {:x 25, :y 2, :width 8, :height 8},
   :score 70.3125})
- ...
 ```
 
 Let's try a bigger radar sample:
