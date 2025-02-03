@@ -191,7 +191,7 @@ which coordinates this app's sources/processors/sinks pipeline:
 
 ![Source/processor/sink diagram](doc/images/invader-detector-IO.png)
 
-`pixel-matrix`: 2D vector representing a radar sample or pattern:
+`pixel-matrix`: 2D vector representing a radar sample or pattern.
 
 ```clojure
 [[0 0 0 1 1 0 0 0]
@@ -215,7 +215,7 @@ bounding box.
 
 ### Testing
 
-You can run `clj -X:test`.
+`clj -X:test` runs tests.
 
 Two testing frameworks:
 - Rich Comment Tests: a kind of literate programming that helps
