@@ -6,6 +6,8 @@
 
 If you're using this program, sadly you know we have no time to waste.
 
+![Locations with 70% score-threshold](doc/images/spec-locations-threshold-70.png)
+
 ```sh
 cd /path/to/invader-detector
 
