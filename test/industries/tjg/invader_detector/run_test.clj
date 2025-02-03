@@ -1,4 +1,4 @@
-(ns industries.tjg.run-test
+(ns industries.tjg.invader-detector.run-test
   {:clj-kondo/ignore [:refer :unresolved-symbol]}
   (:require
    [clojure.string :as str]
