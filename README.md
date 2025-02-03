@@ -236,7 +236,7 @@ Two testing frameworks:
 > times; premature optimization is the root of all evil (or at least
 > most of it) in programming.”*
 >
-> — Donald Knuth, "The Art of Computer Programming"
+> — Donald Knuth, "Computer Programming as an Art"
 
 This currently uses a O(N²) algorithm. If performance optimization's
 needed, [Criterium](https://github.com/hugoduncan/criterium) (a handy
