@@ -191,11 +191,7 @@ which coordinates this app's sources/processors/sinks pipeline:
 
 ![Source/processor/sink diagram](doc/images/invader-detector-IO.png)
 
-### Concepts
-
-There's two main datastructures flowing through the system.
-
-**pixel-matrix:** 2D vector representing a radar sample or pattern:
+`pixel-matrix`: 2D vector representing a radar sample or pattern:
 
 ```clojure
 [[0 0 0 1 1 0 0 0]
@@ -208,7 +204,7 @@ There's two main datastructures flowing through the system.
  [1 0 1 0 0 1 0 1]]
 ```
 
-**scorebox:** map representing a bounding box in the radar sample,
+`scorebox`: map representing a bounding box in the radar sample,
 with a score that estimates the likelihood that an invader's in the
 bounding box.
 
