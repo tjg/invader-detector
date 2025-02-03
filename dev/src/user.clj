@@ -29,7 +29,7 @@
     {:save-ascii (str file-prefix ".txt")
      :print-ascii true
      :save-matches (str file-prefix ".edn")
-     :print-matches false
+     :print-matches true
      :save-images [(str file-prefix ".png")
                    (str file-prefix ".jpeg")]}))
 
@@ -54,7 +54,7 @@
                     {:r 68, :g 242, :b 13}]
    :output-ascii-on-char \█
    :output-ascii-off-char \space
-   :output-ascii-opaque-fill true
+   :output-ascii-opaque-fill false
 
    ;; String sinks.
    :string-matches true
@@ -78,4 +78,5 @@
 (println)(println)
 (locate-invaders!)
 (println)
-(println (first @temp-dirs))
+(println "New temp output dir:")
+(println (str (last @temp-dirs) "/user.png"))
