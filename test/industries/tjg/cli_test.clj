@@ -3,31 +3,17 @@
   (:require
    [expectations.clojure.test :refer [defexpect expect use-fixtures]]
    [industries.tjg.invader-detector.cli :as sut]
+   [industries.tjg.invader-detector.test.fixtures :as fixtures]
    [me.raynes.fs :as fs]))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Test fixtures
 
 (defonce ^:private test-dir (atom nil))
-
-(defn- setup []
-  (reset! test-dir (fs/temp-dir "")))
-
-(defn- teardown []
-  (fs/delete-dir @test-dir))
-
-(defn- silent-fixture [f]
-  (let [null-writer (java.io.StringWriter.)]
-    (binding [*out* null-writer
-              *err* null-writer]
-      (setup)
-      (try
-        (f)
-        (finally
-          (teardown))))))
-
-(use-fixtures :once silent-fixture)
+(use-fixtures :once
+  (fixtures/make-silent-fixture
+   #(reset! test-dir (fs/temp-dir ""))
+   #(fs/delete-dir @test-dir)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tests
