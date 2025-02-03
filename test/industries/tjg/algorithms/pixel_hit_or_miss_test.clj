@@ -2,8 +2,11 @@
   {:clj-kondo/ignore [:refer :unresolved-symbol]}
   (:require
    [clojure.data :as data]
-   [expectations.clojure.test :refer [defexpect expect expecting from-each]]
-   [industries.tjg.invader-detector.algorithms.pixel-hit-or-miss :as sut]))
+   [expectations.clojure.test
+    :refer [defexpect expect expecting from-each more->]]
+   [industries.tjg.invader-detector.algorithms.pixel-hit-or-miss :as sut]
+   [industries.tjg.invader-detector.datastructures :as ds]
+   [malli.core :as m]))
 
 (defexpect matches-with-high-scores
   (let [matches (sut/matches [[0 0]
@@ -15,19 +18,27 @@
                  (+ 2 2 -1))
               (count matches)))
     (expecting "uniform score-box keys"
-      (expect #{:bbox :score}
-              (from-each [match matches]
-                (-> match keys set))))
+      (expect #(m/validate ds/ScoreBox %)
+              (from-each [m matches]
+                m)))
     (expecting "scores all higher than 50%, because all overlaps are matches"
       (expect #(> % 0.5)
               (from-each [match matches]
                 (:score match))))
     (expecting "perfect scores where they fully overlap"
-      (expect #{{:score 1, :bbox {:x 0 :y 0 :width 2 :height 2}}
-                {:score 1, :bbox {:x 1 :y 0 :width 2 :height 2}}}
+      (expect (more-> 1
+                      :score
+
+                      {:width 2 :height 2}
+                      (-> :bbox (select-keys [:width :height])))
+              (from-each [match (->> matches
+                                     (filter #(= (:score %) 1)))]
+                match)))
+    (expecting "2 perfect scores"
+      (expect 2
               (->> matches
                    (filter #(= (:score %) 1))
-                   set)))))
+                   count)))))
 
 (defexpect matches-with-low-scores
   (let [matches (sut/matches [[0 0]
@@ -44,13 +55,20 @@
       (expect #(< % 0.5)
               (from-each [match matches]
                 (:score match))))
-    (expecting "0 scores where they fully overlap"
-      (expect #{{:score 0, :bbox {:x 0 :y 0 :width 2 :height 2}}
-                {:score 0, :bbox {:x 0 :y 1 :width 2 :height 2}}
-                {:score 0, :bbox {:x 0 :y 2 :width 2 :height 2}}}
-              (->> matches
-                   (filter #(zero? (:score %)))
-                   set)))))
+    (expecting "in zero-scores, they fully overlap"
+      (expect (more-> 0
+                      :score
+
+                      {:width 2 :height 2}
+                      (-> :bbox (select-keys [:width :height])))
+              (from-each [match (->> matches
+                                     (filter #(zero? (:score %))))]
+                match))
+      (expecting "three zero-scores"
+        (expect 3
+                (->> matches
+                     (filter #(zero? (:score %)))
+                     count))))))
 
 ;; Testing private fn `sut/similarity-at-offset`.
 ;; Feel free to delete this code as internals change.
@@ -63,16 +81,18 @@
                           [0 0 0 0]
                           [0 0 0 0]]]
     (expecting "switching similarity params only impacts `:invader-pixel-count`"
-      (expect [{:invader-pixel-count 9}  ;; From `small-pixel-matrix`.
-               {:invader-pixel-count 16} ;; From `big-pixel-matrix`.
+      (expect (more-> {:invader-pixel-count 9} ;; From `small-pixel-matrix`.
+                      first
 
-               ;; Same.
-               {:overlap-dimensions {:width 3 :height 3}
-                :matched-pixel-count 3
-                :match-image [[0 0 1]
-                              [0 1 0]
-                              [1 0 0]]}]
+                      {:invader-pixel-count 16} ;; From `big-pixel-matrix`.
+                      second
 
+                      {:overlap-dimensions {:width 3 :height 3}
+                       :matched-pixel-count 3
+                       :match-image [[0 0 1]
+                                     [0 1 0]
+                                     [1 0 0]]}
+                      (nth 2))
               (data/diff (#'sut/similarity-at-offset
                           small-pixel-matrix big-pixel-matrix ;; smaller, bigger
                           {:offset [0 0]})
