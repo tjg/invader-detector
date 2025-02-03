@@ -180,16 +180,16 @@ Options:
 ### Where to start?
 
 One place is
-[user.clj](https://github.com/tjg/invader-detector/blob/docs/dev/src/user.clj#L34),
+[user.clj](https://github.com/tjg/invader-detector/blob/81274a35c10aea3dffa1ccb21d41685b5bf401f1/dev/src/user.clj#L34),
 a developer sandbox that's likely convenient than the CLI. Simply
 evaluating the whole buffer will print results in the REPL, as well as
 save images & matches to a temp dir.
 
 It calls
-[run.clj](https://github.com/tjg/invader-detector/blob/docs/src/industries/tjg/invader_detector/run.clj#L152),
+[run.clj](https://github.com/tjg/invader-detector/blob/81274a35c10aea3dffa1ccb21d41685b5bf401f1/src/industries/tjg/invader_detector/run.clj#L152),
 which coordinates this app's sources/processors/sinks pipeline:
 
-![Source/processor/sink diagram](doc/images/two-invaders.png)
+![Source/processor/sink diagram](doc/images/invader-detector-IO.png)
 
 ### Concepts
 
