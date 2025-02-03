@@ -1,12 +1,14 @@
 # Invader Detector
 
-<img src="./doc/images/invaders-sneak-peek.png" alt="Two invaders eyeing each other">
+<img src="./doc/images/invaders-sneak-peek.png" 
+     alt="Two invaders eyeing each other">
 
 ## Walkthrough
 
 If you're using this program, sadly you know we have no time to waste.
 
-![Locations with 70% score-threshold](doc/images/spec-locations-threshold-70.png)
+<img src="./doc/images/spec-locations-threshold-70.png" 
+     alt="Invader locations with 70% score-threshold" width="400"/>
 
 ```sh
 cd /path/to/invader-detector
