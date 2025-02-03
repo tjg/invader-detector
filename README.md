@@ -143,16 +143,16 @@ precise data:
  ...
 ```
 
-To locate all invaders from the spec's sample radar:
+Let's try a bigger radar sample.
+
+(Incidentally, setting `--score-threshold` to a higher threshold
+results in fewer matches.  It's `70` by default.)
 
 ```
 ./detect-invaders.sh \
   --radar-sample-file resources/spec-radar-sample.txt \
   --invader-files resources/spec-invader-1.txt:resources/spec-invader-2.txt \
   --save-images spec-locations-threshold-70.png
-
-# You can try setting --score-threshold to a different percentage.
-# It's `70` by default.
 ```
 
 <img src="./doc/images/spec-locations-threshold-70.png"
