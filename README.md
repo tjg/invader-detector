@@ -189,17 +189,17 @@ Options:
 
 One place is
 [user.clj](https://github.com/tjg/invader-detector/blob/c6126b53561284ec4b5a710cebd25e32f60cfda1/dev/src/user.clj#L34),
-a developer sandbox that's likely convenient than the CLI. Simply
+a developer sandbox that's likely more convenient than the CLI. Simply
 evaluating the whole buffer will print results in the REPL, as well as
-save images & matches to a temp dir.
+save images and matches to a temp dir.
 
 It calls
 [run.clj](https://github.com/tjg/invader-detector/blob/c6126b53561284ec4b5a710cebd25e32f60cfda1/src/industries/tjg/invader_detector/run.clj#L154),
-which coordinates this app's sources/processors/sinks pipeline:
+which coordinates the sources/processors/sinks pipeline:
 
 ![Source/processor/sink diagram](doc/images/invader-detector-IO.png)
 
-`pixel-matrix`: 2D vector representing a radar sample or pattern.
+`pixel-matrix` is a 2D vector representing a radar sample or pattern.
 
 ```clojure
 [[0 0 0 1 1 0 0 0]
@@ -212,7 +212,7 @@ which coordinates this app's sources/processors/sinks pipeline:
  [1 0 1 0 0 1 0 1]]
 ```
 
-`scorebox`: map representing a bounding box in the radar sample,
+`scorebox` is a map representing a bounding box in the radar sample,
 with a score that estimates the likelihood that an invader's in the
 bounding box.
 
@@ -226,10 +226,10 @@ bounding box.
 `clj -X:test` runs tests.
 
 Two testing frameworks:
-- Rich Comment Tests: a kind of literate programming that helps
+- Rich Comment Tests: A kind of literate programming that helps
   explain the code.
-- Expectations unit tests: more expressive than `clojure.test`, but
-  compatible with its tooling.
+- Expectations: More expressive than `clojure.test`, but compatible
+  with its tooling.
 
 ### Performance
 
