@@ -6,14 +6,7 @@
 (defn round
   "Rounds a number to the nearest integer, preserving types where possible."
   [n]
-  (cond
-    (double? n) (Math/round ^double n)
-    (float? n)  (Math/round ^float n)
-    (ratio? n)  (Math/round (double n))
-    (integer? n) n
-    (instance? java.math.BigDecimal n) (.setScale ^java.math.BigDecimal n 0
-                                                  java.math.RoundingMode/HALF_UP)
-    :else (Math/round (double n))))
+  (Math/round (double n)))
 
 (defn format-edn
   "Format data as EDN-encoded string."
