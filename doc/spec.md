@@ -1,4 +1,4 @@
-# Development assignment
+# Invader Detector spec
 
 Space invaders are upon us!
 You were shortlisted as one of the great minds to help us track them down.
