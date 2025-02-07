@@ -1,21 +1,8 @@
 # Invader Detector spec
 
 Space invaders are upon us!
-You were shortlisted as one of the great minds to help us track them down.
 
-Your Clojure application must take a radar sample as an argument and reveal possible locations of those pesky invaders.
-Good luck!
-
-### Requirements:
-- No image detection, this is all about ASCII patterns
-- This is a perfect opportunity to demonstrate your understanding of Immutability, Function Composition, State Management in a functional language as well as Code reusability and Higher-order Functions.
-- Fully tested code with unit tests.
-- Ideally use atomic commit history, so we can see the progression.
-- Create a GitHub repository with your solution and share the link with us.
-
-### Tips:
-- The noise in the radar can be either false positives or false negatives
-- Think of edge cases ... pun intended ;)
+This application takes a radar sample as an argument and reveals possible locations of those pesky invaders.
 
 ### Known invaders:
 ~~~~
