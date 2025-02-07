@@ -3,7 +3,9 @@
 <img src="./doc/images/invaders-sneak-peek.png" 
      alt="Two invaders eyeing each other">
 
-*[Background.](https://github.com/tjg/invader-detector/blob/main/doc/spec.md)*
+[Background.](https://github.com/tjg/invader-detector/blob/main/doc/spec.md)
+This app takes in an ASCII representation of space invaders and a
+radar sample, and does pattern recognition to locate them.
 
 ## Walkthrough
 
