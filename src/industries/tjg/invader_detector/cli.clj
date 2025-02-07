@@ -58,7 +58,9 @@
    [nil "--save-images FILES"
     "Output image files, separated by colons."
     :parse-fn #(str/split % #":")
-    :validate [#(malli/validate cli-input/multiple-image-files-schema %)
+    :validate [#(malli/validate [:sequential {:min 1}
+                                 cli-input/image-file-schema]
+                                %)
                (str "Directory doesn't exist, or filename extension unknown. \nExtension must be one of: "
                     (->> run/available-image-formats
                          (map str/lower-case)
