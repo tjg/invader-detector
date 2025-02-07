@@ -225,9 +225,10 @@ bounding box:
 `clj -X:test` runs tests.
 
 Two testing frameworks:
-- Rich Comment Tests: Helps illustrate sourcecode.
-- Expectations: More expressive than `clojure.test`, but compatible
-  with its tooling.
+- [Rich Comment Tests](https://github.com/matthewdowney/rich-comment-tests):
+  Helps illustrate sourcecode.
+- [Expectations](https://github.com/clojure-expectations/clojure-test):
+  More expressive than `clojure.test`, but compatible with its tooling.
 
 ### Performance
 
@@ -236,7 +237,7 @@ Two testing frameworks:
 > times; premature optimization is the root of all evil (or at least
 > most of it) in programming.”*
 >
-> — Donald Knuth, "Computer Programming as an Art"
+> — Donald Knuth, ["Computer Programming as an Art"](https://dl.acm.org/doi/10.1145/361604.361612)
 
 This currently uses a O(N²) algorithm. If performance optimization's
 needed, [Criterium](https://github.com/hugoduncan/criterium) (a handy
