@@ -3,6 +3,8 @@
 <img src="./doc/images/invaders-sneak-peek.png" 
      alt="Two invaders eyeing each other">
 
+*[Background.](https://github.com/tjg/invader-detector/blob/main/doc/spec.md)*
+
 ## Walkthrough
 
 If you're using this program, sadly you know we have no time to waste.
