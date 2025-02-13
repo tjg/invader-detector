@@ -247,9 +247,10 @@ This currently uses a O(N²) algorithm. If performance optimization's
 needed, [Criterium](https://github.com/hugoduncan/criterium) (a handy
 benchmarking library) is included in the `:deps` alias.
 
-There's many optimization opportunities: CPU cache-friendly
-datastructures, bit-vector comparisons, pre-processing, and judicious
-parallelism.
+There's many optimization opportunities to consider, if performance is
+ever needed: improved algorithms, batching, judicious parallelism, CPU
+cache-friendly datastructures, bit-vector comparisons, pre-processing,
+etc.
 
 ## License
 
